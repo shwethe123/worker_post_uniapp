@@ -1,0 +1,310 @@
+
+.card[data-v-8e0ecb97] {
+  background-color: #ffffff;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.card-header[data-v-8e0ecb97] {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  position: relative;
+}
+.avatar[data-v-8e0ecb97] {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.user-info[data-v-8e0ecb97] {
+  margin-left: 10px;
+}
+.username[data-v-8e0ecb97] {
+  font-weight: 600;
+  font-size: 15px;
+  display: block;
+}
+.timestamp[data-v-8e0ecb97] {
+  font-size: 12px;
+  color: #65676b;
+  display: block;
+}
+.post-actions[data-v-8e0ecb97] {
+  margin-left: auto;
+}
+.delete-btn[data-v-8e0ecb97] {
+  background: none;
+  border: none;
+  color: #65676b;
+  font-size: 18px;
+  padding: 5px;
+}
+.card-body[data-v-8e0ecb97] {
+  margin: 10px 0;
+}
+.content[data-v-8e0ecb97] {
+  font-size: 15px;
+  line-height: 1.4;
+}
+.card-stats[data-v-8e0ecb97] {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 8px 0;
+  /* border-top: 1px solid #e4e6eb; */
+  border-bottom: 1px solid #e4e6eb;
+  display: flex;
+  font-size: 13px;
+  color: #65676b;
+}
+.likes-count[data-v-8e0ecb97] {
+  margin-right: 15px;
+}
+.card-actions[data-v-8e0ecb97] {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+.action-btn[data-v-8e0ecb97] {
+  background: none;
+  border: none;
+  color: #65676b;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  padding-bottom: 3px;
+  /* border-radius: 5px; */
+}
+.action-btn uni-text[data-v-8e0ecb97] {
+  margin-right: 5px;
+  font-size: 16px;
+}
+.action-btn.liked .like-icon[data-v-8e0ecb97] {
+  color: #e0245e;
+}
+.comment-section[data-v-8e0ecb97] {
+  border-top: 1px solid #e4e6eb;
+  padding-top: 10px;
+}
+.comment-item[data-v-8e0ecb97] {
+  display: flex;
+  margin-bottom: 12px;
+}
+.comment-avatar[data-v-8e0ecb97] {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+.comment-content[data-v-8e0ecb97] {
+  flex: 1;
+}
+.comment-header[data-v-8e0ecb97] {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+.comment-user[data-v-8e0ecb97] {
+  font-weight: 600;
+  font-size: 13px;
+  margin-right: 5px;
+}
+.comment-time[data-v-8e0ecb97] {
+  font-size: 11px;
+  color: #65676b;
+}
+.comment-text[data-v-8e0ecb97] {
+  font-size: 14px;
+  line-height: 1.4;
+  background-color: #e9ecef;
+  border-radius: 15px;
+  padding: 10px;
+}
+.replies-container[data-v-8e0ecb97] {
+  margin-top: 8px;
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 2px solid #e4e6eb;
+}
+.reply-item[data-v-8e0ecb97] {
+  display: flex;
+  margin-top: 8px;
+}
+.reply-avatar[data-v-8e0ecb97] {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+.reply-content[data-v-8e0ecb97] {
+  flex: 1;
+  background-color: #e9ecef;
+  border-radius: 15px;
+  padding: 10px;
+}
+.reply-header[data-v-8e0ecb97] {
+  display: flex;
+  align-items: baseline;
+}
+.reply-user[data-v-8e0ecb97] {
+  font-weight: 600;
+  font-size: 12px;
+  margin-right: 5px;
+}
+.reply-time[data-v-8e0ecb97] {
+  font-size: 10px;
+  color: #65676b;
+}
+.reply-text[data-v-8e0ecb97] {
+  font-size: 13px;
+  line-height: 1.4;
+}
+.reply-btn[data-v-8e0ecb97] {
+  background: none;
+  border: none;
+  color: #65676b;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 0;
+  margin-top: 2px;
+}
+.reply-input[data-v-8e0ecb97] {
+  display: flex;
+  margin-top: 5px;
+}
+.reply-input uni-input[data-v-8e0ecb97] {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 18px;
+  background-color: #f0f2f5;
+  border: none;
+  font-size: 13px;
+}
+.send-reply-btn[data-v-8e0ecb97] {
+  background: none;
+  border: none;
+  color: #1877f2;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 0 8px;
+}
+.new-comment[data-v-8e0ecb97] {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e4e6eb;
+}
+.new-comment uni-input[data-v-8e0ecb97] {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 18px;
+  background-color: #f0f2f5;
+  border: none;
+  font-size: 14px;
+  margin: 0 8px;
+}
+.send-comment-btn[data-v-8e0ecb97] {
+  background: none;
+  border: none;
+  color: #1877f2;
+  font-weight: 600;
+  font-size: 14px;
+}
+.user-avatar-wrapper[data-v-8e0ecb97] {
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+.user-avatar[data-v-8e0ecb97] {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #ccc;
+}
+.user-avatar-text[data-v-8e0ecb97] {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #1877f2;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+
+
+.container[data-v-1cf27b2a] {
+  padding: 10px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+.new-post[data-v-1cf27b2a] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: white;
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.user-avatar[data-v-1cf27b2a] {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.new-post uni-input[data-v-1cf27b2a] {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background-color: #f0f2f5;
+  border: none;
+  font-size: 14px;
+}
+.post-button[data-v-1cf27b2a] {
+  background-color: #1877f2;
+  color: white;
+  border: none;
+  padding: 0px 15px;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.loading[data-v-1cf27b2a] {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+.user-avatar-wrapper[data-v-1cf27b2a] {
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+.user-avatar[data-v-1cf27b2a] {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #ccc;
+}
+.user-avatar-text[data-v-1cf27b2a] {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #1877f2;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 18px;
+}
+
