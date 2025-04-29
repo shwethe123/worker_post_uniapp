@@ -1,22 +1,24 @@
 <template>
   <view class="card">
     <view class="card-header">
-		<view class="user-avatar-wrapper">
-		  <image 
-			v-if="(post.userId === currentUser.userId && currentUser.avatar && currentUser.avatar !== '/static/default-avatar.png') 
-				  || (post.user.avatar && post.user.avatar !== '/static/default-avatar.png')"
-			class="user-avatar" 
-			:src="post.userId === currentUser.userId ? currentUser.avatar : post.user.avatar"
-			mode="aspectFill"
-		  />
-		  <view v-else class="user-avatar-text">
-			{{ (post.userId === currentUser.userId ? currentUser.username : post.user.username)?.charAt(0).toUpperCase() || 'U' }}
-		  </view>
-		</view>
+      <view class="user-avatar-wrapper">
+<image
+  v-if="post && post.avatar"
+  :src="post.avatar"
+  class="post-avatar"
+/>
+        <view v-else class="user-avatar-text">
+          {{
+            getInitials(post.userId === currentUser.userId 
+              ? currentUser.username 
+              : post.user.username)
+          }}
+        </view>
+      </view>
 
       <view class="user-info">
         <text class="username">{{ post.user.username }}</text>
-        <text class="timestamp">{{ formattedPostTime }}</text>
+        <text class="timestamp">{{ formatRelativeTime(post.createdAt) }}</text>
       </view>
       <view v-if="post.userId === currentUser.userId" class="post-actions">
         <button @click="deletePost" class="delete-btn">✕</button>
@@ -33,11 +35,11 @@
     </view>
 
     <view class="card-actions">
-	<text @click="toggleLike" class="action-btn" :class="{ liked: isLiked }">
-	  <text :style="{ color: isLiked ? '#e0245e' : '#65676b' }">
-		{{ isLiked ? 'ting' : '♡' }}
-	  </text> Like
-	</text>
+      <text @click="toggleLike" class="action-btn" :class="{ liked: isLiked }">
+        <text :style="{ color: isLiked ? '#e0245e' : '#65676b' }">
+          {{ isLiked ? '❤️' : '♡' }}
+        </text> Like
+      </text>
       <text @click="toggleComments" class="action-btn">
         <text>💬</text> Comment
       </text>
@@ -45,35 +47,45 @@
 
     <view v-if="commentsVisible" class="comment-section">
       <view v-for="comment in post.comments" :key="comment._id" class="comment-item">
-        <image class="comment-avatar" :src="getAvatar(comment.userId)" />
+        <image
+          v-if="post && post.avatar"
+          :src="post.avatar"
+          class="post-avatar"
+        />
         <view class="comment-content">
           <view class="comment-text">
-			  <view class="comment-header">
-				<text class="comment-user">{{ comment.user.username }}</text>
-				<text class="timestamp">{{ formattedPostTime }}</text>
-			  </view>
-          	<text >{{ comment.text }}</text>
+            <view class="comment-header">
+              <text class="comment-user">{{ comment.user.username }}</text>
+              <text class="timestamp">{{ formatRelativeTime(comment.createdAt) }}</text>
+            </view>
+            <text>{{ comment.text }}</text>
           </view>
           
           <view v-if="comment.replies.length" class="replies-container">
             <view v-for="reply in comment.replies" :key="reply._id" class="reply-item">
-              <image class="reply-avatar" :src="getAvatar(reply.userId)" />
+				<image
+				  v-if="reply.user.avatar"
+				  :src="reply.user.avatar"
+				  class="reply-avatar"
+				/>
+				<view v-else class="reply-avatar-text">
+				  {{ getInitials(reply.user.username) }}
+				</view>
               <view class="reply-content">
                 <view class="reply-header">
                   <text class="reply-user">{{ reply.user.username }}</text>
-                  <!-- <text class="reply-time">{{ reply.createdAt }}</text> -->
-				  <text class="timestamp">{{ formattedPostTime }}</text>
+                  <text class="timestamp">{{ formatRelativeTime(reply.createdAt) }}</text>
                 </view>
                 <text class="reply-text">{{ reply.text }}</text>
               </view>
             </view>
           </view>
           
-		<view class="reply_con">
-			<text @click="showReplyInput(comment._id)" class="reply-btn">
-			  Reply
-			</text>
-		</view>
+          <view class="reply_con">
+            <text @click="showReplyInput(comment._id)" class="reply-btn">
+              Reply
+            </text>
+          </view>
           
           <view v-if="activeReplyInput === comment._id" class="reply-input">
             <input 
@@ -87,7 +99,11 @@
       </view>
 
       <view class="new-comment">
-        <image class="comment-avatar" :src="currentUser.avatar" />
+        <image
+		  v-if="post && post.avatar"
+		  :src="post.avatar"
+		  class="post-avatar"
+		/>
         <input 
           v-model="newComment" 
           placeholder="Write a comment..." 
@@ -100,7 +116,6 @@
 </template>
 
 <script>
-	import { formatRelativeTime } from '@/pages/utils/time.js'
 export default {
   props: {
     post: Object,
@@ -117,19 +132,28 @@ export default {
   computed: {
     isLiked() {
       return this.post.likes?.includes(this.currentUser.userId) || false
-    },
-    formattedPostTime() {
-      return formatRelativeTime(this.post.createdAt)
     }
   },
   methods: {
     getAvatar(userId) {
-      // In a real app, you'd fetch the avatar based on userId
       return userId === this.currentUser.userId 
         ? this.currentUser.avatar 
-        : '/static/logo.png'
+        : '/static/sms.png'
     },
-	
+	  getInitials(username) {
+		if (!username) return 'UU';
+		const parts = username.split(' ');
+		let initials = parts[0].charAt(0).toUpperCase();
+		if (parts.length > 1) {
+		  initials += parts[1].charAt(0).toUpperCase();
+		} else if (parts[0].length > 1) {
+		  initials += parts[0].charAt(1).toUpperCase();
+		} else {
+		  initials += initials; // Duplicate if only one character
+		}
+		return initials;
+	  },
+	  
     toggleLike() {
       this.$emit('like-post', this.post._id)
     },
@@ -175,6 +199,24 @@ export default {
         }
       })
     },
+    formatRelativeTime(dateString) {
+      const now = new Date();
+      const targetDate = new Date(dateString);
+      const diffMs = now - targetDate;
+
+      const seconds = Math.floor(diffMs / 1000);
+      const minutes = Math.floor(diffMs / (1000 * 60));
+      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const weeks = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 7));
+
+      if (seconds < 60) return 'Just now';
+      if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+      if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+      if (days === 1) return 'Yesterday';
+      if (days < 7) return `${days} days ago`;
+      return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+    }
   }
 }
 </script>
@@ -460,6 +502,36 @@ export default {
   align-items: center;
   font-weight: bold;
   font-size: 18px;
+}
+
+.comment-avatar-text {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+  background-color: #1877f2;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.reply-avatar-text {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+  background-color: #1877f2;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 10px;
 }
 
 </style>

@@ -56,7 +56,7 @@ export default {
       try {
         console.log('Sending login request...')
         const response = await uni.request({
-          url: 'http://localhost:3000/api/users/login',
+          url: 'http://192.168.16.32:3000/api/users/login',
           method: 'POST',
           data: {
             email: this.email,
@@ -81,23 +81,46 @@ export default {
           throw new Error('Invalid server response')
         }
 
-        if (responseData.token) {
-          uni.setStorageSync('token', responseData.token);
-          uni.setStorageSync('user', responseData.user);
+		if (responseData.token) {
+		  // Debug here
+		  console.log("Login user data:", responseData.user)
+		
+		  // Ensure userId exists before storing
+		  if (!responseData.user.userId) {
+		    responseData.user.userId = responseData.user.id || responseData.user._id;
+		  }
+		
+		  uni.setStorageSync('token', responseData.token);
+		  uni.setStorageSync('user', responseData.user);
+		
+		  this.currentUser = responseData.user;
+		  
+		  uni.switchTab({ url: '/pages/index/index' });
+		
+		  uni.showToast({
+		    title: `Welcome back, ${responseData.user.username}!`,
+		    icon: 'none'
+		  });
+		  return;
+		}
+
+        // if (responseData.token) {
+        //   uni.setStorageSync('token', responseData.token);
+        //   uni.setStorageSync('user', responseData.user);
           
-          // Update local user data
-          this.currentUser = responseData.user;
+        //   // Update local user data
+        //   this.currentUser = responseData.user;
           
-          uni.switchTab({ 
-            url: '/pages/index/index'
-          });
+        //   uni.switchTab({ 
+        //     url: '/pages/index/index'
+        //   });
           
-          uni.showToast({
-            title: `Welcome back, ${responseData.user.username}!`,
-            icon: 'none'
-          });
-          return;
-        }
+        //   uni.showToast({
+        //     title: `Welcome back, ${responseData.user.username}!`,
+        //     icon: 'none'
+        //   });
+        //   return;
+        // }
 
         throw new Error(responseData.message || 'Login failed')
 

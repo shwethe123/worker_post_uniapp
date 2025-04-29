@@ -38,27 +38,6 @@ if (uni.restoreGlobal) {
       console[type].apply(console, [...args, filename]);
     }
   }
-  function formatRelativeTime(dateString) {
-    const now = /* @__PURE__ */ new Date();
-    const postDate = new Date(dateString);
-    const diffMs = now - postDate;
-    const seconds = Math.floor(diffMs / 1e3);
-    const minutes = Math.floor(diffMs / (1e3 * 60));
-    const hours = Math.floor(diffMs / (1e3 * 60 * 60));
-    const days = Math.floor(diffMs / (1e3 * 60 * 60 * 24));
-    const weeks = Math.floor(diffMs / (1e3 * 60 * 60 * 24 * 7));
-    if (seconds < 60)
-      return "Just now";
-    if (minutes < 60)
-      return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-    if (hours < 24)
-      return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-    if (days === 1)
-      return "Yesterday";
-    if (days < 7)
-      return `${days} days ago`;
-    return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
-  }
   const _export_sfc = (sfc, props) => {
     const target = sfc.__vccOpts || sfc;
     for (const [key, val] of props) {
@@ -83,14 +62,25 @@ if (uni.restoreGlobal) {
       isLiked() {
         var _a;
         return ((_a = this.post.likes) == null ? void 0 : _a.includes(this.currentUser.userId)) || false;
-      },
-      formattedPostTime() {
-        return formatRelativeTime(this.post.createdAt);
       }
     },
     methods: {
       getAvatar(userId) {
-        return userId === this.currentUser.userId ? this.currentUser.avatar : "/static/logo.png";
+        return userId === this.currentUser.userId ? this.currentUser.avatar : "/static/sms.png";
+      },
+      getInitials(username) {
+        if (!username)
+          return "UU";
+        const parts = username.split(" ");
+        let initials = parts[0].charAt(0).toUpperCase();
+        if (parts.length > 1) {
+          initials += parts[1].charAt(0).toUpperCase();
+        } else if (parts[0].length > 1) {
+          initials += parts[0].charAt(1).toUpperCase();
+        } else {
+          initials += initials;
+        }
+        return initials;
       },
       toggleLike() {
         this.$emit("like-post", this.post._id);
@@ -135,26 +125,45 @@ if (uni.restoreGlobal) {
             }
           }
         });
+      },
+      formatRelativeTime(dateString) {
+        const now = /* @__PURE__ */ new Date();
+        const targetDate = new Date(dateString);
+        const diffMs = now - targetDate;
+        const seconds = Math.floor(diffMs / 1e3);
+        const minutes = Math.floor(diffMs / (1e3 * 60));
+        const hours = Math.floor(diffMs / (1e3 * 60 * 60));
+        const days = Math.floor(diffMs / (1e3 * 60 * 60 * 24));
+        const weeks = Math.floor(diffMs / (1e3 * 60 * 60 * 24 * 7));
+        if (seconds < 60)
+          return "Just now";
+        if (minutes < 60)
+          return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+        if (hours < 24)
+          return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+        if (days === 1)
+          return "Yesterday";
+        if (days < 7)
+          return `${days} days ago`;
+        return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
       }
     }
   };
   function _sfc_render$3(_ctx, _cache, $props, $setup, $data, $options) {
-    var _a;
     return vue.openBlock(), vue.createElementBlock("view", { class: "card" }, [
       vue.createElementVNode("view", { class: "card-header" }, [
         vue.createElementVNode("view", { class: "user-avatar-wrapper" }, [
-          $props.post.userId === $props.currentUser.userId && $props.currentUser.avatar && $props.currentUser.avatar !== "/static/default-avatar.png" || $props.post.user.avatar && $props.post.user.avatar !== "/static/default-avatar.png" ? (vue.openBlock(), vue.createElementBlock("image", {
+          $props.post && $props.post.avatar ? (vue.openBlock(), vue.createElementBlock("image", {
             key: 0,
-            class: "user-avatar",
-            src: $props.post.userId === $props.currentUser.userId ? $props.currentUser.avatar : $props.post.user.avatar,
-            mode: "aspectFill"
+            src: $props.post.avatar,
+            class: "post-avatar"
           }, null, 8, ["src"])) : (vue.openBlock(), vue.createElementBlock(
             "view",
             {
               key: 1,
               class: "user-avatar-text"
             },
-            vue.toDisplayString(((_a = $props.post.userId === $props.currentUser.userId ? $props.currentUser.username : $props.post.user.username) == null ? void 0 : _a.charAt(0).toUpperCase()) || "U"),
+            vue.toDisplayString($options.getInitials($props.post.userId === $props.currentUser.userId ? $props.currentUser.username : $props.post.user.username)),
             1
             /* TEXT */
           ))
@@ -170,7 +179,7 @@ if (uni.restoreGlobal) {
           vue.createElementVNode(
             "text",
             { class: "timestamp" },
-            vue.toDisplayString($options.formattedPostTime),
+            vue.toDisplayString($options.formatRelativeTime($props.post.createdAt)),
             1
             /* TEXT */
           )
@@ -223,7 +232,7 @@ if (uni.restoreGlobal) {
               {
                 style: vue.normalizeStyle({ color: $options.isLiked ? "#e0245e" : "#65676b" })
               },
-              vue.toDisplayString($options.isLiked ? "ting" : "♡"),
+              vue.toDisplayString($options.isLiked ? "❤️" : "♡"),
               5
               /* TEXT, STYLE */
             ),
@@ -252,10 +261,11 @@ if (uni.restoreGlobal) {
               key: comment._id,
               class: "comment-item"
             }, [
-              vue.createElementVNode("image", {
-                class: "comment-avatar",
-                src: $options.getAvatar(comment.userId)
-              }, null, 8, ["src"]),
+              $props.post && $props.post.avatar ? (vue.openBlock(), vue.createElementBlock("image", {
+                key: 0,
+                src: $props.post.avatar,
+                class: "post-avatar"
+              }, null, 8, ["src"])) : vue.createCommentVNode("v-if", true),
               vue.createElementVNode("view", { class: "comment-content" }, [
                 vue.createElementVNode("view", { class: "comment-text" }, [
                   vue.createElementVNode("view", { class: "comment-header" }, [
@@ -269,7 +279,7 @@ if (uni.restoreGlobal) {
                     vue.createElementVNode(
                       "text",
                       { class: "timestamp" },
-                      vue.toDisplayString($options.formattedPostTime),
+                      vue.toDisplayString($options.formatRelativeTime(comment.createdAt)),
                       1
                       /* TEXT */
                     )
@@ -294,10 +304,11 @@ if (uni.restoreGlobal) {
                         key: reply._id,
                         class: "reply-item"
                       }, [
-                        vue.createElementVNode("image", {
-                          class: "reply-avatar",
-                          src: $options.getAvatar(reply.userId)
-                        }, null, 8, ["src"]),
+                        $props.post && $props.post.avatar ? (vue.openBlock(), vue.createElementBlock("image", {
+                          key: 0,
+                          src: $props.post.avatar,
+                          class: "post-avatar"
+                        }, null, 8, ["src"])) : vue.createCommentVNode("v-if", true),
                         vue.createElementVNode("view", { class: "reply-content" }, [
                           vue.createElementVNode("view", { class: "reply-header" }, [
                             vue.createElementVNode(
@@ -307,11 +318,10 @@ if (uni.restoreGlobal) {
                               1
                               /* TEXT */
                             ),
-                            vue.createCommentVNode(' <text class="reply-time">{{ reply.createdAt }}</text> '),
                             vue.createElementVNode(
                               "text",
                               { class: "timestamp" },
-                              vue.toDisplayString($options.formattedPostTime),
+                              vue.toDisplayString($options.formatRelativeTime(reply.createdAt)),
                               1
                               /* TEXT */
                             )
@@ -359,10 +369,11 @@ if (uni.restoreGlobal) {
           /* KEYED_FRAGMENT */
         )),
         vue.createElementVNode("view", { class: "new-comment" }, [
-          vue.createElementVNode("image", {
-            class: "comment-avatar",
-            src: $props.currentUser.avatar
-          }, null, 8, ["src"]),
+          $props.post && $props.post.avatar ? (vue.openBlock(), vue.createElementBlock("image", {
+            key: 0,
+            src: $props.post.avatar,
+            class: "post-avatar"
+          }, null, 8, ["src"])) : vue.createCommentVNode("v-if", true),
           vue.withDirectives(vue.createElementVNode(
             "input",
             {
@@ -403,31 +414,49 @@ if (uni.restoreGlobal) {
         return;
       }
       const storedUser = uni.getStorageSync("user");
-      if (storedUser && storedUser.userId) {
-        this.currentUser = storedUser;
-      } else {
+      if (storedUser && (storedUser.userId || storedUser.id || storedUser._id)) {
         this.currentUser = {
-          username: "Guest",
-          avatar: "/static/default-avatar.png",
-          userId: "guest-" + Math.random().toString(36).substring(2, 9)
+          userId: storedUser.userId || storedUser.id || storedUser._id,
+          username: storedUser.username,
+          email: storedUser.email,
+          avatar: storedUser.avatar || "/static/default-avatar.png"
         };
-        uni.setStorageSync("user", this.currentUser);
+      } else {
+        uni.removeStorageSync("token");
+        uni.removeStorageSync("user");
+        uni.redirectTo({ url: "/pages/auth/login" });
+        return;
       }
       await this.fetchPosts();
     },
     methods: {
+      getInitials(username) {
+        formatAppLog("log", "at pages/index/index.vue:91", "usertest", username);
+        if (!username)
+          return "UU";
+        const parts = username.split(" ");
+        let initials = parts[0].charAt(0).toUpperCase();
+        if (parts.length > 1) {
+          initials += parts[1].charAt(0).toUpperCase();
+        } else if (parts[0].length > 1) {
+          initials += parts[0].charAt(1).toUpperCase();
+        } else {
+          initials += initials;
+        }
+        return initials;
+      },
       async fetchPosts() {
         this.loading = true;
         try {
           const res = await uni.request({
-            url: "http://localhost:3000/api/posts",
+            url: "http://192.168.16.32:3000/api/posts",
             header: {
               "x-auth-token": uni.getStorageSync("token")
             }
           });
           this.posts = res.data || this.getMockPosts();
         } catch (error) {
-          formatAppLog("error", "at pages/index/index.vue:100", "Fetch posts error:", error);
+          formatAppLog("error", "at pages/index/index.vue:117", "Fetch posts error:", error);
           this.posts = this.getMockPosts();
           uni.showToast({
             title: "Using mock data",
@@ -457,7 +486,7 @@ if (uni.restoreGlobal) {
           return;
         try {
           const res = await uni.request({
-            url: "http://localhost:3000/api/posts",
+            url: "http://192.168.16.32:3000/api/posts",
             method: "POST",
             header: {
               "x-auth-token": uni.getStorageSync("token"),
@@ -485,25 +514,24 @@ if (uni.restoreGlobal) {
             icon: "success"
           });
         } catch (error) {
-          formatAppLog("error", "at pages/index/index.vue:162", "Create post error:", error);
+          formatAppLog("error", "at pages/index/index.vue:179", "Create post error:", error);
           uni.showToast({
             title: "Failed to post",
             icon: "none"
           });
         }
       },
-      // ✅ Updated like with API
       async handleLike(postId) {
         try {
           const post = this.posts.find((p) => p._id === postId);
           if (!post) {
-            formatAppLog("error", "at pages/index/index.vue:175", "Post not found:", postId);
+            formatAppLog("error", "at pages/index/index.vue:191", "Post not found:", postId);
             return;
           }
           const hasLiked = post.likes.includes(this.currentUser.userId);
           const method = hasLiked ? "DELETE" : "POST";
           const res = await uni.request({
-            url: `http://localhost:3000/api/posts/${postId}/like`,
+            url: `http://192.168.16.32:3000/api/posts/${postId}/like`,
             method: "PUT",
             header: {
               "x-auth-token": uni.getStorageSync("token"),
@@ -523,14 +551,13 @@ if (uni.restoreGlobal) {
             icon: "success"
           });
         } catch (error) {
-          formatAppLog("error", "at pages/index/index.vue:207", "Like failed:", error);
+          formatAppLog("error", "at pages/index/index.vue:223", "Like failed:", error);
           uni.showToast({
             title: error.message || "Failed to update like",
             icon: "none"
           });
         }
       },
-      // ✅ Updated comment with API
       async handleAddComment({ postId, commentText }) {
         var _a, _b;
         const post = this.posts.find((p) => p._id === postId);
@@ -538,7 +565,7 @@ if (uni.restoreGlobal) {
           return;
         try {
           const res = await uni.request({
-            url: `http://localhost:3000/api/posts/${postId}/comments`,
+            url: `http://192.168.16.32:3000/api/posts/${postId}/comments`,
             method: "POST",
             header: {
               "x-auth-token": uni.getStorageSync("token"),
@@ -558,7 +585,7 @@ if (uni.restoreGlobal) {
           };
           post.comments.unshift(comment);
         } catch (error) {
-          formatAppLog("error", "at pages/index/index.vue:245", "Add comment failed:", error);
+          formatAppLog("error", "at pages/index/index.vue:259", "Add comment failed:", error);
           uni.showToast({ title: "Failed to add comment", icon: "none" });
         }
       },
@@ -572,7 +599,7 @@ if (uni.restoreGlobal) {
           return;
         try {
           const res = await uni.request({
-            url: `http://localhost:3000/api/posts/${postId}/comments/${commentId}/replies`,
+            url: `http://192.168.16.32:3000/api/posts/${postId}/comments/${commentId}/replies`,
             method: "POST",
             header: {
               "x-auth-token": uni.getStorageSync("token"),
@@ -595,7 +622,7 @@ if (uni.restoreGlobal) {
             icon: "success"
           });
         } catch (error) {
-          formatAppLog("error", "at pages/index/index.vue:286", "Add reply failed:", error);
+          formatAppLog("error", "at pages/index/index.vue:300", "Add reply failed:", error);
           uni.showToast({ title: "Failed to add reply", icon: "none" });
         }
       },
@@ -613,23 +640,22 @@ if (uni.restoreGlobal) {
     }
   };
   function _sfc_render$2(_ctx, _cache, $props, $setup, $data, $options) {
-    var _a, _b, _c;
+    var _a;
     const _component_PostCard = vue.resolveComponent("PostCard");
     return vue.openBlock(), vue.createElementBlock("view", { class: "container" }, [
       vue.createElementVNode("view", { class: "new-post" }, [
         vue.createElementVNode("view", { class: "user-avatar-wrapper" }, [
-          ((_a = $data.currentUser) == null ? void 0 : _a.avatar) && $data.currentUser.avatar !== "/static/default-avatar.png" ? (vue.openBlock(), vue.createElementBlock("image", {
+          _ctx.post && _ctx.post.avatar ? (vue.openBlock(), vue.createElementBlock("image", {
             key: 0,
-            class: "user-avatar",
-            src: $data.currentUser.avatar,
-            mode: "aspectFill"
+            src: _ctx.post.avatar,
+            class: "post-avatar"
           }, null, 8, ["src"])) : (vue.openBlock(), vue.createElementBlock(
             "view",
             {
               key: 1,
               class: "user-avatar-text"
             },
-            vue.toDisplayString(((_c = (_b = $data.currentUser) == null ? void 0 : _b.username) == null ? void 0 : _c.charAt(0).toUpperCase()) || "U"),
+            vue.toDisplayString($options.getInitials((_a = $data.currentUser) == null ? void 0 : _a.username)),
             1
             /* TEXT */
           ))
@@ -705,7 +731,7 @@ if (uni.restoreGlobal) {
         try {
           formatAppLog("log", "at pages/auth/login.vue:57", "Sending login request...");
           const response = await uni.request({
-            url: "http://localhost:3000/api/users/login",
+            url: "http://192.168.16.32:3000/api/users/login",
             method: "POST",
             data: {
               email: this.email,
@@ -725,12 +751,14 @@ if (uni.restoreGlobal) {
             throw new Error("Invalid server response");
           }
           if (responseData.token) {
+            formatAppLog("log", "at pages/auth/login.vue:86", "Login user data:", responseData.user);
+            if (!responseData.user.userId) {
+              responseData.user.userId = responseData.user.id || responseData.user._id;
+            }
             uni.setStorageSync("token", responseData.token);
             uni.setStorageSync("user", responseData.user);
             this.currentUser = responseData.user;
-            uni.switchTab({
-              url: "/pages/index/index"
-            });
+            uni.switchTab({ url: "/pages/index/index" });
             uni.showToast({
               title: `Welcome back, ${responseData.user.username}!`,
               icon: "none"
@@ -739,7 +767,7 @@ if (uni.restoreGlobal) {
           }
           throw new Error(responseData.message || "Login failed");
         } catch (error) {
-          formatAppLog("error", "at pages/auth/login.vue:105", "Login error details:", error);
+          formatAppLog("error", "at pages/auth/login.vue:128", "Login error details:", error);
           uni.showToast({
             title: error.message || "Login failed",
             icon: "none",
@@ -820,7 +848,7 @@ if (uni.restoreGlobal) {
         this.loading = true;
         try {
           const response = await uni.request({
-            url: "http://localhost:3000/api/users/register",
+            url: "http://192.168.16.32:3000/api/users/register",
             method: "POST",
             data: {
               username: this.username,
