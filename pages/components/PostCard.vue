@@ -2,11 +2,11 @@
   <view class="card">
     <view class="card-header">
       <view class="user-avatar-wrapper">
-<image
-  v-if="post && post.avatar"
-  :src="post.avatar"
-  class="post-avatar"
-/>
+        <image
+          v-if="post && post.avatar"
+          :src="post.avatar"
+          class="post-avatar"
+        />
         <view v-else class="user-avatar-text">
           {{
             getInitials(post.userId === currentUser.userId 
@@ -48,10 +48,14 @@
     <view v-if="commentsVisible" class="comment-section">
       <view v-for="comment in post.comments" :key="comment._id" class="comment-item">
         <image
-          v-if="post && post.avatar"
-          :src="post.avatar"
-          class="post-avatar"
+          v-if="comment.user.avatar"
+          :src="comment.user.avatar"
+          class="comment-avatar"
         />
+        <view v-else class="comment-avatar-text">
+          {{ getInitials(comment.user.username) }}
+        </view>
+
         <view class="comment-content">
           <view class="comment-text">
             <view class="comment-header">
@@ -60,17 +64,18 @@
             </view>
             <text>{{ comment.text }}</text>
           </view>
-          
+
           <view v-if="comment.replies.length" class="replies-container">
             <view v-for="reply in comment.replies" :key="reply._id" class="reply-item">
-				<image
-				  v-if="reply.user.avatar"
-				  :src="reply.user.avatar"
-				  class="reply-avatar"
-				/>
-				<view v-else class="reply-avatar-text">
-				  {{ getInitials(reply.user.username) }}
-				</view>
+              <image
+                v-if="reply.user.avatar"
+                :src="reply.user.avatar"
+                class="reply-avatar"
+              />
+              <view v-else class="reply-avatar-text">
+                {{ getInitials(reply.user.username) }}
+              </view>
+
               <view class="reply-content">
                 <view class="reply-header">
                   <text class="reply-user">{{ reply.user.username }}</text>
@@ -80,13 +85,13 @@
               </view>
             </view>
           </view>
-          
+
           <view class="reply_con">
             <text @click="showReplyInput(comment._id)" class="reply-btn">
               Reply
             </text>
           </view>
-          
+
           <view v-if="activeReplyInput === comment._id" class="reply-input">
             <input 
               v-model="replyTexts[comment._id]" 
@@ -100,10 +105,13 @@
 
       <view class="new-comment">
         <image
-		  v-if="post && post.avatar"
-		  :src="post.avatar"
-		  class="post-avatar"
-		/>
+          v-if="currentUser.avatar"
+          :src="currentUser.avatar"
+          class="comment-avatar"
+        />
+        <view v-else class="comment-avatar-text">
+          {{ getInitials(currentUser.username) }}
+        </view>
         <input 
           v-model="newComment" 
           placeholder="Write a comment..." 
@@ -114,6 +122,7 @@
     </view>
   </view>
 </template>
+
 
 <script>
 export default {
