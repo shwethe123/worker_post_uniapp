@@ -1,0 +1,81 @@
+
+.profile-container[data-v-dd383ca2] {
+  padding: 20px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+.profile-header[data-v-dd383ca2] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.avatar-large[data-v-dd383ca2] {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #1877f2;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.username[data-v-dd383ca2] {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.email[data-v-dd383ca2] {
+  font-size: 16px;
+  color: #666;
+}
+.profile-stats[data-v-dd383ca2] {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+  padding: 15px 0;
+  background-color: white;
+  border-radius: 10px;
+}
+.stat-item[data-v-dd383ca2] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stat-number[data-v-dd383ca2] {
+  font-size: 20px;
+  font-weight: bold;
+}
+.stat-label[data-v-dd383ca2] {
+  font-size: 14px;
+  color: #666;
+}
+.section-title[data-v-dd383ca2] {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 15px 0;
+  display: block;
+}
+.user-posts[data-v-dd383ca2] {
+  margin-bottom: 20px;
+}
+.profile-actions[data-v-dd383ca2] {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.action-button[data-v-dd383ca2] {
+	width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    border: none;
+    font-size: 16px;
+    background-color: #1877f2;
+    color: white;
+}
+.action-button.logout[data-v-dd383ca2] {
+  background-color: #ff4444;
+}

@@ -1,19 +1,22 @@
 <template>
   <view class="login-container">
-    <view class="login-form">
-      <text class="title">Login</text>
+    <view class="login-card">
+      <text class="title">Welcome Back</text>
+      <text class="subtitle">Please login to continue</text>
+
       <input 
         v-model="email" 
         class="input" 
-        placeholder="Email" 
+        placeholder="Enter your email" 
         type="email" 
       />
       <input 
         v-model="password" 
         class="input" 
-        placeholder="Password" 
+        placeholder="Enter your password" 
         type="password" 
       />
+
       <button 
         class="login-button" 
         @click="handleLogin"
@@ -21,9 +24,11 @@
       >
         {{ loading ? 'Logging in...' : 'Login' }}
       </button>
-      <text class="register-link" @click="goToRegister">
-        Don't have an account? Register
-      </text>
+
+      <view class="footer">
+        <text>Don't have an account?</text>
+        <text class="register-link" @click="goToRegister"> Register</text>
+      </view>
     </view>
   </view>
 </template>
@@ -151,54 +156,83 @@ export default {
   height: 100vh;
   padding: 20px;
   background-color: #f5f5f5;
+  /* background: linear-gradient(to right, #6a11cb, #2575fc); */
 }
 
-.login-form {
+.login-card {
   width: 100%;
-  max-width: 400px;
-  padding: 30px;
+  max-width: 380px;
   background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 35px 25px;
+  border-radius: 16px;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  display: block;
+  font-size: 26px;
+  font-weight: 700;
+  color: #333;
   text-align: center;
+  margin-bottom: 10px;
 }
 
+.subtitle {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 25px;
+}
 .input {
-  width: 100%;
-  padding: 12px 15px;
-  margin-bottom: 15px;
+  width: 90%;
+  padding: 14px 16px;
+  margin-bottom: 16px;
   border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color 0.3s;
+}
+
+.input:focus {
+  border-color: #2575fc;
 }
 
 .login-button {
   width: 100%;
-  padding: 12px;
-  background-color: #007aff;
+  padding: 14px;
+  background-color: #2575fc;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   font-size: 16px;
+  font-weight: 600;
   margin-top: 10px;
+  transition: background-color 0.3s;
 }
 
 .login-button:disabled {
-  background-color: #cccccc;
+  background-color: #aaa;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #555;
 }
 
 .register-link {
-  display: block;
-  text-align: center;
-  margin-top: 15px;
-  color: #007aff;
+  margin-left: 5px;
+  color: #2575fc;
+  font-weight: bold;
   text-decoration: underline;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

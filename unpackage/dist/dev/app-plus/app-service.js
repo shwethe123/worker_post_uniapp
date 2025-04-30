@@ -45,7 +45,7 @@ if (uni.restoreGlobal) {
     }
     return target;
   };
-  const _sfc_main$4 = {
+  const _sfc_main$6 = {
     props: {
       post: Object,
       currentUser: Object
@@ -55,35 +55,36 @@ if (uni.restoreGlobal) {
         commentsVisible: false,
         newComment: "",
         activeReplyInput: null,
-        replyTexts: {}
+        replyTexts: {},
+        isLiked: false
+        // manually tracked
       };
     },
-    computed: {
-      isLiked() {
-        var _a;
-        return ((_a = this.post.likes) == null ? void 0 : _a.includes(this.currentUser.userId)) || false;
+    mounted() {
+      var _a, _b;
+      const likeKey = `like_${this.post._id}_${this.currentUser.userId}`;
+      try {
+        const storedLike = uni.getStorageSync(likeKey);
+        if (storedLike !== "") {
+          this.isLiked = storedLike === "true";
+        } else {
+          this.isLiked = (_a = this.post.likes) == null ? void 0 : _a.some((u) => u._id === this.currentUser.userId);
+        }
+      } catch (e) {
+        formatAppLog("error", "at pages/components/PostCard.vue:153", "Storage error:", e);
+        this.isLiked = (_b = this.post.likes) == null ? void 0 : _b.some((u) => u._id === this.currentUser.userId);
       }
     },
     methods: {
-      getAvatar(userId) {
-        return userId === this.currentUser.userId ? this.currentUser.avatar : "/static/sms.png";
-      },
-      getInitials(username) {
-        if (!username)
-          return "UU";
-        const parts = username.split(" ");
-        let initials = parts[0].charAt(0).toUpperCase();
-        if (parts.length > 1) {
-          initials += parts[1].charAt(0).toUpperCase();
-        } else if (parts[0].length > 1) {
-          initials += parts[0].charAt(1).toUpperCase();
-        } else {
-          initials += initials;
-        }
-        return initials;
-      },
       toggleLike() {
-        this.$emit("like-post", this.post._id);
+        this.isLiked = !this.isLiked;
+        const likeKey = `like_${this.post._id}_${this.currentUser.userId}`;
+        try {
+          uni.setStorageSync(likeKey, this.isLiked);
+        } catch (e) {
+          formatAppLog("error", "at pages/components/PostCard.vue:164", "Failed to save like state:", e);
+        }
+        this.$emit("like-post", this.post._id, this.isLiked);
       },
       toggleComments() {
         this.commentsVisible = !this.commentsVisible;
@@ -126,31 +127,46 @@ if (uni.restoreGlobal) {
           }
         });
       },
+      getInitials(username) {
+        if (!username)
+          return "UU";
+        const parts = username.split(" ");
+        let initials = parts[0].charAt(0).toUpperCase();
+        if (parts.length > 1) {
+          initials += parts[1].charAt(0).toUpperCase();
+        } else if (parts[0].length > 1) {
+          initials += parts[0].charAt(1).toUpperCase();
+        } else {
+          initials += initials;
+        }
+        return initials;
+      },
       formatRelativeTime(dateString) {
         const now = /* @__PURE__ */ new Date();
         const targetDate = new Date(dateString);
         const diffMs = now - targetDate;
         const seconds = Math.floor(diffMs / 1e3);
-        const minutes = Math.floor(diffMs / (1e3 * 60));
-        const hours = Math.floor(diffMs / (1e3 * 60 * 60));
-        const days = Math.floor(diffMs / (1e3 * 60 * 60 * 24));
-        const weeks = Math.floor(diffMs / (1e3 * 60 * 60 * 24 * 7));
+        const minutes = Math.floor(diffMs / 60 / 1e3);
+        const hours = Math.floor(diffMs / 60 / 60 / 1e3);
+        const days = Math.floor(diffMs / 24 / 60 / 60 / 1e3);
+        const weeks = Math.floor(days / 7);
         if (seconds < 60)
           return "Just now";
         if (minutes < 60)
-          return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+          return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
         if (hours < 24)
-          return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+          return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
         if (days === 1)
           return "Yesterday";
         if (days < 7)
           return `${days} days ago`;
-        return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
+        return `${weeks} week${weeks !== 1 ? "s" : ""} ago`;
       }
     }
   };
-  function _sfc_render$3(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$5(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "card" }, [
+      vue.createCommentVNode(" Header "),
       vue.createElementVNode("view", { class: "card-header" }, [
         vue.createElementVNode("view", { class: "user-avatar-wrapper" }, [
           $props.post && $props.post.avatar ? (vue.openBlock(), vue.createElementBlock("image", {
@@ -184,16 +200,24 @@ if (uni.restoreGlobal) {
             /* TEXT */
           )
         ]),
+        vue.createCommentVNode(' <view v-if="post.userId === currentUser.userId" class="post-actions"> '),
         $props.post.userId === $props.currentUser.userId ? (vue.openBlock(), vue.createElementBlock("view", {
           key: 0,
           class: "post-actions"
         }, [
-          vue.createElementVNode("button", {
+          vue.createElementVNode("text", {
             onClick: _cache[0] || (_cache[0] = (...args) => $options.deletePost && $options.deletePost(...args)),
             class: "delete-btn"
-          }, "✕")
-        ])) : vue.createCommentVNode("v-if", true)
+          }, "X")
+        ])) : vue.createCommentVNode("v-if", true),
+        vue.createElementVNode("view", { class: "post-actions" }, [
+          vue.createElementVNode("text", {
+            onClick: _cache[1] || (_cache[1] = (...args) => _ctx.todoPost && _ctx.todoPost(...args)),
+            class: "todo-btn"
+          }, "Todo")
+        ])
       ]),
+      vue.createCommentVNode(" Content "),
       vue.createElementVNode("view", { class: "card-body" }, [
         vue.createElementVNode(
           "text",
@@ -203,6 +227,7 @@ if (uni.restoreGlobal) {
           /* TEXT */
         )
       ]),
+      vue.createCommentVNode(" Stats "),
       vue.createElementVNode("view", { class: "card-stats" }, [
         vue.createElementVNode(
           "text",
@@ -213,42 +238,56 @@ if (uni.restoreGlobal) {
         ),
         vue.createElementVNode(
           "text",
-          { class: "comments-count" },
+          {
+            onClick: _cache[2] || (_cache[2] = (...args) => $options.toggleComments && $options.toggleComments(...args)),
+            class: "comments-count"
+          },
           vue.toDisplayString($props.post.comments.length) + " comments",
           1
           /* TEXT */
         )
       ]),
+      vue.createCommentVNode(" Actions "),
       vue.createElementVNode("view", { class: "card-actions" }, [
+        vue.createCommentVNode(` 	<text @click="toggleLike" class="action-btn" :class="{ liked: isLiked }">
+	  <text :style="{ color: isLiked ? '#e0245e' : '#65676b' }">
+		{{ isLiked ? '❤️' : '♡' }}
+	  </text> {{ isLiked ? 'Liked' : 'Like' }}
+	</text> `),
         vue.createElementVNode(
           "text",
           {
-            onClick: _cache[1] || (_cache[1] = (...args) => $options.toggleLike && $options.toggleLike(...args)),
-            class: vue.normalizeClass(["action-btn", { liked: $options.isLiked }])
+            onClick: _cache[3] || (_cache[3] = (...args) => $options.toggleLike && $options.toggleLike(...args)),
+            class: vue.normalizeClass(["action-btn", { liked: $data.isLiked }])
           },
           [
             vue.createElementVNode(
               "text",
               {
-                style: vue.normalizeStyle({ color: $options.isLiked ? "#e0245e" : "#65676b" })
+                style: vue.normalizeStyle({ color: $data.isLiked ? "#65676b" : "#65676b" })
               },
-              vue.toDisplayString($options.isLiked ? "❤️" : "♡"),
+              vue.toDisplayString($data.isLiked ? "♡" : "♡"),
               5
               /* TEXT, STYLE */
             ),
-            vue.createTextVNode(" Like ")
+            vue.createTextVNode(
+              " " + vue.toDisplayString($data.isLiked ? "Like" : "Like"),
+              1
+              /* TEXT */
+            )
           ],
           2
           /* CLASS */
         ),
         vue.createElementVNode("text", {
-          onClick: _cache[2] || (_cache[2] = (...args) => $options.toggleComments && $options.toggleComments(...args)),
+          onClick: _cache[4] || (_cache[4] = (...args) => $options.toggleComments && $options.toggleComments(...args)),
           class: "action-btn"
         }, [
           vue.createElementVNode("text", null, "💬"),
           vue.createTextVNode(" Comment ")
         ])
       ]),
+      vue.createCommentVNode(" Comments "),
       $data.commentsVisible ? (vue.openBlock(), vue.createElementBlock("view", {
         key: 0,
         class: "comment-section"
@@ -261,11 +300,13 @@ if (uni.restoreGlobal) {
               key: comment._id,
               class: "comment-item"
             }, [
-              $props.post && $props.post.avatar ? (vue.openBlock(), vue.createElementBlock("image", {
-                key: 0,
-                src: $props.post.avatar,
-                class: "post-avatar"
-              }, null, 8, ["src"])) : vue.createCommentVNode("v-if", true),
+              vue.createElementVNode(
+                "view",
+                { class: "comment-avatar-text" },
+                vue.toDisplayString($options.getInitials(comment.user.username)),
+                1
+                /* TEXT */
+              ),
               vue.createElementVNode("view", { class: "comment-content" }, [
                 vue.createElementVNode("view", { class: "comment-text" }, [
                   vue.createElementVNode("view", { class: "comment-header" }, [
@@ -304,11 +345,13 @@ if (uni.restoreGlobal) {
                         key: reply._id,
                         class: "reply-item"
                       }, [
-                        $props.post && $props.post.avatar ? (vue.openBlock(), vue.createElementBlock("image", {
-                          key: 0,
-                          src: $props.post.avatar,
-                          class: "post-avatar"
-                        }, null, 8, ["src"])) : vue.createCommentVNode("v-if", true),
+                        vue.createElementVNode(
+                          "view",
+                          { class: "reply-avatar-text" },
+                          vue.toDisplayString($options.getInitials(reply.user.username)),
+                          1
+                          /* TEXT */
+                        ),
                         vue.createElementVNode("view", { class: "reply-content" }, [
                           vue.createElementVNode("view", { class: "reply-header" }, [
                             vue.createElementVNode(
@@ -350,6 +393,13 @@ if (uni.restoreGlobal) {
                   key: 1,
                   class: "reply-input"
                 }, [
+                  vue.createElementVNode(
+                    "view",
+                    { class: "comment-avatar-text" },
+                    vue.toDisplayString($options.getInitials($props.currentUser.username)),
+                    1
+                    /* TEXT */
+                  ),
                   vue.withDirectives(vue.createElementVNode("input", {
                     "onUpdate:modelValue": ($event) => $data.replyTexts[comment._id] = $event,
                     placeholder: "Write a reply...",
@@ -357,7 +407,7 @@ if (uni.restoreGlobal) {
                   }, null, 40, ["onUpdate:modelValue", "onKeyup"]), [
                     [vue.vModelText, $data.replyTexts[comment._id]]
                   ]),
-                  vue.createElementVNode("button", {
+                  vue.createElementVNode("text", {
                     onClick: ($event) => $options.addReply(comment._id),
                     class: "send-reply-btn"
                   }, "Send", 8, ["onClick"])
@@ -369,17 +419,19 @@ if (uni.restoreGlobal) {
           /* KEYED_FRAGMENT */
         )),
         vue.createElementVNode("view", { class: "new-comment" }, [
-          $props.post && $props.post.avatar ? (vue.openBlock(), vue.createElementBlock("image", {
-            key: 0,
-            src: $props.post.avatar,
-            class: "post-avatar"
-          }, null, 8, ["src"])) : vue.createCommentVNode("v-if", true),
+          vue.createElementVNode(
+            "view",
+            { class: "comment-avatar-text" },
+            vue.toDisplayString($options.getInitials($props.currentUser.username)),
+            1
+            /* TEXT */
+          ),
           vue.withDirectives(vue.createElementVNode(
             "input",
             {
-              "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => $data.newComment = $event),
+              "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => $data.newComment = $event),
               placeholder: "Write a comment...",
-              onKeyup: _cache[4] || (_cache[4] = vue.withKeys((...args) => $options.addComment && $options.addComment(...args), ["enter"]))
+              onKeyup: _cache[6] || (_cache[6] = vue.withKeys((...args) => $options.addComment && $options.addComment(...args), ["enter"]))
             },
             null,
             544
@@ -387,16 +439,16 @@ if (uni.restoreGlobal) {
           ), [
             [vue.vModelText, $data.newComment]
           ]),
-          vue.createElementVNode("button", {
-            onClick: _cache[5] || (_cache[5] = (...args) => $options.addComment && $options.addComment(...args)),
+          vue.createElementVNode("text", {
+            onClick: _cache[7] || (_cache[7] = (...args) => $options.addComment && $options.addComment(...args)),
             class: "send-comment-btn"
           }, "Send")
         ])
       ])) : vue.createCommentVNode("v-if", true)
     ]);
   }
-  const PostCard = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["render", _sfc_render$3], ["__scopeId", "data-v-8e0ecb97"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/components/PostCard.vue"]]);
-  const _sfc_main$3 = {
+  const PostCard = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["render", _sfc_render$5], ["__scopeId", "data-v-8e0ecb97"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/components/PostCard.vue"]]);
+  const _sfc_main$5 = {
     components: { PostCard },
     data() {
       return {
@@ -639,7 +691,7 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render$2(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$4(_ctx, _cache, $props, $setup, $data, $options) {
     var _a;
     const _component_PostCard = vue.resolveComponent("PostCard");
     return vue.openBlock(), vue.createElementBlock("view", { class: "container" }, [
@@ -705,8 +757,8 @@ if (uni.restoreGlobal) {
       ))
     ]);
   }
-  const PagesIndexIndex = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["render", _sfc_render$2], ["__scopeId", "data-v-1cf27b2a"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/index/index.vue"]]);
-  const _sfc_main$2 = {
+  const PagesIndexIndex = /* @__PURE__ */ _export_sfc(_sfc_main$5, [["render", _sfc_render$4], ["__scopeId", "data-v-1cf27b2a"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/index/index.vue"]]);
+  const _sfc_main$4 = {
     data() {
       return {
         email: "",
@@ -729,7 +781,7 @@ if (uni.restoreGlobal) {
         }
         this.loading = true;
         try {
-          formatAppLog("log", "at pages/auth/login.vue:57", "Sending login request...");
+          formatAppLog("log", "at pages/auth/login.vue:62", "Sending login request...");
           const response = await uni.request({
             url: "http://192.168.16.32:3000/api/users/login",
             method: "POST",
@@ -741,17 +793,17 @@ if (uni.restoreGlobal) {
               "Content-Type": "application/json"
             }
           });
-          formatAppLog("log", "at pages/auth/login.vue:70", "Raw response:", response);
+          formatAppLog("log", "at pages/auth/login.vue:75", "Raw response:", response);
           if (response.statusCode >= 400) {
             throw new Error(response.errMsg || "Network error");
           }
           const responseData = response.data || ((_a = response[1]) == null ? void 0 : _a.data);
           if (!responseData) {
-            formatAppLog("error", "at pages/auth/login.vue:80", "Invalid response structure:", response);
+            formatAppLog("error", "at pages/auth/login.vue:85", "Invalid response structure:", response);
             throw new Error("Invalid server response");
           }
           if (responseData.token) {
-            formatAppLog("log", "at pages/auth/login.vue:86", "Login user data:", responseData.user);
+            formatAppLog("log", "at pages/auth/login.vue:91", "Login user data:", responseData.user);
             if (!responseData.user.userId) {
               responseData.user.userId = responseData.user.id || responseData.user._id;
             }
@@ -767,7 +819,7 @@ if (uni.restoreGlobal) {
           }
           throw new Error(responseData.message || "Login failed");
         } catch (error) {
-          formatAppLog("error", "at pages/auth/login.vue:128", "Login error details:", error);
+          formatAppLog("error", "at pages/auth/login.vue:133", "Login error details:", error);
           uni.showToast({
             title: error.message || "Login failed",
             icon: "none",
@@ -782,16 +834,17 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render$1(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$3(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "login-container" }, [
-      vue.createElementVNode("view", { class: "login-form" }, [
-        vue.createElementVNode("text", { class: "title" }, "Login"),
+      vue.createElementVNode("view", { class: "login-card" }, [
+        vue.createElementVNode("text", { class: "title" }, "Welcome Back"),
+        vue.createElementVNode("text", { class: "subtitle" }, "Please login to continue"),
         vue.withDirectives(vue.createElementVNode(
           "input",
           {
             "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => $data.email = $event),
             class: "input",
-            placeholder: "Email",
+            placeholder: "Enter your email",
             type: "email"
           },
           null,
@@ -805,7 +858,7 @@ if (uni.restoreGlobal) {
           {
             "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => $data.password = $event),
             class: "input",
-            placeholder: "Password",
+            placeholder: "Enter your password",
             type: "password"
           },
           null,
@@ -819,15 +872,18 @@ if (uni.restoreGlobal) {
           onClick: _cache[2] || (_cache[2] = (...args) => $options.handleLogin && $options.handleLogin(...args)),
           disabled: $data.loading
         }, vue.toDisplayString($data.loading ? "Logging in..." : "Login"), 9, ["disabled"]),
-        vue.createElementVNode("text", {
-          class: "register-link",
-          onClick: _cache[3] || (_cache[3] = (...args) => $options.goToRegister && $options.goToRegister(...args))
-        }, " Don't have an account? Register ")
+        vue.createElementVNode("view", { class: "footer" }, [
+          vue.createElementVNode("text", null, "Don't have an account?"),
+          vue.createElementVNode("text", {
+            class: "register-link",
+            onClick: _cache[3] || (_cache[3] = (...args) => $options.goToRegister && $options.goToRegister(...args))
+          }, " Register")
+        ])
       ])
     ]);
   }
-  const PagesAuthLogin = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["render", _sfc_render$1], ["__scopeId", "data-v-2cc9f8c3"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/auth/login.vue"]]);
-  const _sfc_main$1 = {
+  const PagesAuthLogin = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["render", _sfc_render$3], ["__scopeId", "data-v-2cc9f8c3"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/auth/login.vue"]]);
+  const _sfc_main$3 = {
     data() {
       return {
         username: "",
@@ -862,7 +918,7 @@ if (uni.restoreGlobal) {
           });
           this.goToLogin();
         } catch (error) {
-          formatAppLog("error", "at pages/auth/register.vue:57", "Registration error:", error);
+          formatAppLog("error", "at pages/auth/register.vue:64", "Registration error:", error);
           uni.showToast({
             title: "Registration failed",
             icon: "none"
@@ -876,10 +932,13 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$2(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "register-container" }, [
-      vue.createElementVNode("view", { class: "register-form" }, [
-        vue.createElementVNode("text", { class: "title" }, "Register"),
+      vue.createElementVNode("view", { class: "register-card" }, [
+        vue.createElementVNode("text", { class: "title" }, "Create Account"),
+        vue.createElementVNode("view", { class: "" }, [
+          vue.createElementVNode("text", { class: "subtitle" }, "Join us today - it’s free!")
+        ]),
         vue.withDirectives(vue.createElementVNode(
           "input",
           {
@@ -921,27 +980,234 @@ if (uni.restoreGlobal) {
         ), [
           [vue.vModelText, $data.password]
         ]),
-        vue.createElementVNode(
-          "button",
-          {
-            class: "register-button",
-            onClick: _cache[3] || (_cache[3] = (...args) => $options.handleRegister && $options.handleRegister(...args))
-          },
-          vue.toDisplayString($data.loading ? "Registering..." : "Register"),
-          1
-          /* TEXT */
-        ),
-        vue.createElementVNode("text", {
-          class: "login-link",
-          onClick: _cache[4] || (_cache[4] = (...args) => $options.goToLogin && $options.goToLogin(...args))
-        }, " Already have an account? Login ")
+        vue.createElementVNode("button", {
+          class: "register-button",
+          onClick: _cache[3] || (_cache[3] = (...args) => $options.handleRegister && $options.handleRegister(...args)),
+          disabled: $data.loading
+        }, vue.toDisplayString($data.loading ? "Registering..." : "Register"), 9, ["disabled"]),
+        vue.createElementVNode("view", { class: "footer" }, [
+          vue.createElementVNode("text", null, "Already have an account?"),
+          vue.createElementVNode("text", {
+            class: "login-link",
+            onClick: _cache[4] || (_cache[4] = (...args) => $options.goToLogin && $options.goToLogin(...args))
+          }, " Login")
+        ])
       ])
     ]);
   }
-  const PagesAuthRegister = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["render", _sfc_render], ["__scopeId", "data-v-4bb68961"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/auth/register.vue"]]);
+  const PagesAuthRegister = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["render", _sfc_render$2], ["__scopeId", "data-v-4bb68961"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/auth/register.vue"]]);
+  const _sfc_main$2 = {
+    data() {
+      return {
+        currentUser: {},
+        postsCount: 0,
+        followersCount: 0,
+        followingCount: 0,
+        userPosts: [],
+        loading: false
+      };
+    },
+    async onLoad() {
+      await this.loadProfileData();
+    },
+    methods: {
+      async loadProfileData() {
+        this.loading = true;
+        try {
+          const user = uni.getStorageSync("user");
+          if (!user) {
+            uni.redirectTo({ url: "/pages/auth/login" });
+            return;
+          }
+          this.currentUser = user;
+        } catch (error) {
+          formatAppLog("error", "at pages/profile/profile.vue:97", "Profile load error:", error);
+          uni.showToast({
+            title: "Failed to load profile",
+            icon: "none"
+          });
+        } finally {
+          this.loading = false;
+        }
+      },
+      getInitials(username) {
+        if (!username)
+          return "UU";
+        const parts = username.split(" ");
+        let initials = parts[0].charAt(0).toUpperCase();
+        if (parts.length > 1) {
+          initials += parts[1].charAt(0).toUpperCase();
+        }
+        return initials;
+      },
+      handleLike(postId) {
+      },
+      handleDeletePost(postId) {
+        this.userPosts = this.userPosts.filter((post) => post._id !== postId);
+        this.postsCount--;
+      },
+      navigateToSettings() {
+        uni.navigateTo({ url: "/pages/profile/settings" });
+      },
+      handleLogout() {
+        uni.showModal({
+          title: "Logout",
+          content: "Are you sure you want to logout?",
+          success: (res) => {
+            if (res.confirm) {
+              uni.removeStorageSync("token");
+              uni.removeStorageSync("user");
+              uni.reLaunch({ url: "/pages/auth/login" });
+            }
+          }
+        });
+      }
+    }
+  };
+  function _sfc_render$1(_ctx, _cache, $props, $setup, $data, $options) {
+    return vue.openBlock(), vue.createElementBlock("view", { class: "profile-container" }, [
+      vue.createCommentVNode(" Profile Header "),
+      vue.createElementVNode("view", { class: "profile-header" }, [
+        vue.createElementVNode("view", { class: "avatar-container" }, [
+          vue.createElementVNode(
+            "view",
+            { class: "avatar-large" },
+            vue.toDisplayString($options.getInitials($data.currentUser.username)),
+            1
+            /* TEXT */
+          )
+        ]),
+        vue.createElementVNode(
+          "text",
+          { class: "username" },
+          vue.toDisplayString($data.currentUser.username),
+          1
+          /* TEXT */
+        ),
+        vue.createElementVNode(
+          "text",
+          { class: "email" },
+          vue.toDisplayString($data.currentUser.email),
+          1
+          /* TEXT */
+        )
+      ]),
+      vue.createCommentVNode(" Profile Stats "),
+      vue.createElementVNode("view", { class: "profile-stats" }, [
+        vue.createElementVNode("view", { class: "stat-item" }, [
+          vue.createElementVNode(
+            "text",
+            { class: "stat-number" },
+            vue.toDisplayString($data.postsCount),
+            1
+            /* TEXT */
+          ),
+          vue.createElementVNode("text", { class: "stat-label" }, "Posts")
+        ]),
+        vue.createElementVNode("view", { class: "stat-item" }, [
+          vue.createElementVNode(
+            "text",
+            { class: "stat-number" },
+            vue.toDisplayString($data.followersCount),
+            1
+            /* TEXT */
+          ),
+          vue.createElementVNode("text", { class: "stat-label" }, "Followers")
+        ]),
+        vue.createElementVNode("view", { class: "stat-item" }, [
+          vue.createElementVNode(
+            "text",
+            { class: "stat-number" },
+            vue.toDisplayString($data.followingCount),
+            1
+            /* TEXT */
+          ),
+          vue.createElementVNode("text", { class: "stat-label" }, "Following")
+        ])
+      ]),
+      vue.createCommentVNode(" Settings and Logout "),
+      vue.createElementVNode("view", { class: "profile-actions" }, [
+        vue.createElementVNode("button", {
+          class: "action-button",
+          onClick: _cache[0] || (_cache[0] = (...args) => $options.navigateToSettings && $options.navigateToSettings(...args))
+        }, " Settings "),
+        vue.createElementVNode("button", {
+          class: "action-button logout",
+          onClick: _cache[1] || (_cache[1] = (...args) => $options.handleLogout && $options.handleLogout(...args))
+        }, " Logout ")
+      ])
+    ]);
+  }
+  const PagesProfileProfile = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["render", _sfc_render$1], ["__scopeId", "data-v-dd383ca2"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/profile/profile.vue"]]);
+  const _sfc_main$1 = {
+    methods: {
+      navigateToEditProfile() {
+        uni.navigateTo({ url: "/pages/profile/edit" });
+      },
+      navigateToChangePassword() {
+        uni.navigateTo({ url: "/pages/profile/change-password" });
+      },
+      navigateToPrivacy() {
+        uni.navigateTo({ url: "/pages/profile/privacy" });
+      },
+      handleLogout() {
+        uni.showModal({
+          title: "Logout",
+          content: "Are you sure you want to logout?",
+          success: (res) => {
+            if (res.confirm) {
+              uni.removeStorageSync("token");
+              uni.removeStorageSync("user");
+              uni.reLaunch({ url: "/pages/auth/login" });
+            }
+          }
+        });
+      }
+    }
+  };
+  function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+    return vue.openBlock(), vue.createElementBlock("view", { class: "settings-container" }, [
+      vue.createElementVNode("view", { class: "settings-header" }, [
+        vue.createElementVNode("text", { class: "settings-title" }, "Settings")
+      ]),
+      vue.createElementVNode("view", { class: "settings-list" }, [
+        vue.createElementVNode("view", {
+          class: "settings-item",
+          onClick: _cache[0] || (_cache[0] = (...args) => $options.navigateToEditProfile && $options.navigateToEditProfile(...args))
+        }, [
+          vue.createElementVNode("text", null, "Edit Profile"),
+          vue.createElementVNode("text", null, "›")
+        ]),
+        vue.createElementVNode("view", {
+          class: "settings-item",
+          onClick: _cache[1] || (_cache[1] = (...args) => $options.navigateToChangePassword && $options.navigateToChangePassword(...args))
+        }, [
+          vue.createElementVNode("text", null, "Change Password"),
+          vue.createElementVNode("text", null, "›")
+        ]),
+        vue.createElementVNode("view", {
+          class: "settings-item",
+          onClick: _cache[2] || (_cache[2] = (...args) => $options.navigateToPrivacy && $options.navigateToPrivacy(...args))
+        }, [
+          vue.createElementVNode("text", null, "Privacy Settings"),
+          vue.createElementVNode("text", null, "›")
+        ]),
+        vue.createElementVNode("view", {
+          class: "settings-item",
+          onClick: _cache[3] || (_cache[3] = (...args) => $options.handleLogout && $options.handleLogout(...args))
+        }, [
+          vue.createElementVNode("text", { class: "logout-text" }, "Logout"),
+          vue.createElementVNode("text", null, "›")
+        ])
+      ])
+    ]);
+  }
+  const PagesProfileSettings = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["render", _sfc_render], ["__scopeId", "data-v-eeefe5cd"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/profile/settings.vue"]]);
   __definePage("pages/index/index", PagesIndexIndex);
   __definePage("pages/auth/login", PagesAuthLogin);
   __definePage("pages/auth/register", PagesAuthRegister);
+  __definePage("pages/profile/profile", PagesProfileProfile);
+  __definePage("pages/profile/settings", PagesProfileSettings);
   const _sfc_main = {
     onLaunch: function() {
       formatAppLog("log", "at App.vue:4", "App Launch");

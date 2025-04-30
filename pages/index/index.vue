@@ -2,11 +2,11 @@
   <view class="container">
     <view class="new-post">
       <view class="user-avatar-wrapper">
-<image
-  v-if="post && post.avatar"
-  :src="post.avatar"
-  class="post-avatar"
-/>
+		<image
+		  v-if="post && post.avatar"
+		  :src="post.avatar"
+		  class="post-avatar"
+		/>
         <view v-else class="user-avatar-text">
           {{ getInitials(currentUser?.username) }}
         </view>

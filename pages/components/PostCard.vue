@@ -1,5 +1,6 @@
 <template>
   <view class="card">
+    <!-- Header -->
     <view class="card-header">
       <view class="user-avatar-wrapper">
         <image
@@ -20,39 +21,47 @@
         <text class="username">{{ post.user.username }}</text>
         <text class="timestamp">{{ formatRelativeTime(post.createdAt) }}</text>
       </view>
+      <!-- <view v-if="post.userId === currentUser.userId" class="post-actions"> -->
       <view v-if="post.userId === currentUser.userId" class="post-actions">
-        <button @click="deletePost" class="delete-btn">✕</button>
+        <text @click="deletePost" class="delete-btn">X</text>
       </view>
+	  <view class="post-actions">
+	    <text @click="todoPost" class="todo-btn">Todo</text>
+	  </view>
     </view>
 
+    <!-- Content -->
     <view class="card-body">
       <text class="content">{{ post.content }}</text>
     </view>
 
+    <!-- Stats -->
     <view class="card-stats">
       <text class="likes-count">{{ post.likes.length }} likes</text>
-      <text class="comments-count">{{ post.comments.length }} comments</text>
+      <text @click="toggleComments" class="comments-count">{{ post.comments.length }} comments</text>
     </view>
 
+    <!-- Actions -->
     <view class="card-actions">
-      <text @click="toggleLike" class="action-btn" :class="{ liked: isLiked }">
-        <text :style="{ color: isLiked ? '#e0245e' : '#65676b' }">
-          {{ isLiked ? '❤️' : '♡' }}
-        </text> Like
-      </text>
+<!-- 	<text @click="toggleLike" class="action-btn" :class="{ liked: isLiked }">
+	  <text :style="{ color: isLiked ? '#e0245e' : '#65676b' }">
+		{{ isLiked ? '❤️' : '♡' }}
+	  </text> {{ isLiked ? 'Liked' : 'Like' }}
+	</text> -->
+	<text @click="toggleLike" class="action-btn" :class="{ liked: isLiked }">
+	  <text :style="{ color: isLiked ? '#65676b' : '#65676b' }">
+		{{ isLiked ? '♡' : '♡' }}
+	  </text> {{ isLiked ? 'Like' : 'Like' }}
+	</text>
       <text @click="toggleComments" class="action-btn">
         <text>💬</text> Comment
       </text>
     </view>
 
+    <!-- Comments -->
     <view v-if="commentsVisible" class="comment-section">
       <view v-for="comment in post.comments" :key="comment._id" class="comment-item">
-        <image
-          v-if="comment.user.avatar"
-          :src="comment.user.avatar"
-          class="comment-avatar"
-        />
-        <view v-else class="comment-avatar-text">
+        <view class="comment-avatar-text">
           {{ getInitials(comment.user.username) }}
         </view>
 
@@ -67,12 +76,7 @@
 
           <view v-if="comment.replies.length" class="replies-container">
             <view v-for="reply in comment.replies" :key="reply._id" class="reply-item">
-              <image
-                v-if="reply.user.avatar"
-                :src="reply.user.avatar"
-                class="reply-avatar"
-              />
-              <view v-else class="reply-avatar-text">
+              <view class="reply-avatar-text">
                 {{ getInitials(reply.user.username) }}
               </view>
 
@@ -93,23 +97,21 @@
           </view>
 
           <view v-if="activeReplyInput === comment._id" class="reply-input">
+            <view class="comment-avatar-text">
+              {{ getInitials(currentUser.username) }}
+            </view>
             <input 
               v-model="replyTexts[comment._id]" 
               placeholder="Write a reply..." 
               @keyup.enter="addReply(comment._id)"
             />
-            <button @click="addReply(comment._id)" class="send-reply-btn">Send</button>
+            <text @click="addReply(comment._id)" class="send-reply-btn">Send</text>
           </view>
         </view>
       </view>
 
       <view class="new-comment">
-        <image
-          v-if="currentUser.avatar"
-          :src="currentUser.avatar"
-          class="comment-avatar"
-        />
-        <view v-else class="comment-avatar-text">
+        <view class="comment-avatar-text">
           {{ getInitials(currentUser.username) }}
         </view>
         <input 
@@ -117,12 +119,11 @@
           placeholder="Write a comment..." 
           @keyup.enter="addComment"
         />
-        <button @click="addComment" class="send-comment-btn">Send</button>
+        <text @click="addComment" class="send-comment-btn">Send</text>
       </view>
     </view>
   </view>
 </template>
-
 
 <script>
 export default {
@@ -135,67 +136,62 @@ export default {
       commentsVisible: false,
       newComment: '',
       activeReplyInput: null,
-      replyTexts: {}
+      replyTexts: {},
+      isLiked: false // manually tracked
     }
   },
-  computed: {
-    isLiked() {
-      return this.post.likes?.includes(this.currentUser.userId) || false
+  mounted() {
+    const likeKey = `like_${this.post._id}_${this.currentUser.userId}`;
+    try {
+      const storedLike = uni.getStorageSync(likeKey);
+      if (storedLike !== '') {
+        this.isLiked = storedLike === 'true';
+      } else {
+        this.isLiked = this.post.likes?.some(u => u._id === this.currentUser.userId);
+      }
+    } catch (e) {
+      console.error('Storage error:', e);
+      this.isLiked = this.post.likes?.some(u => u._id === this.currentUser.userId);
     }
   },
   methods: {
-    getAvatar(userId) {
-      return userId === this.currentUser.userId 
-        ? this.currentUser.avatar 
-        : '/static/sms.png'
-    },
-	  getInitials(username) {
-		if (!username) return 'UU';
-		const parts = username.split(' ');
-		let initials = parts[0].charAt(0).toUpperCase();
-		if (parts.length > 1) {
-		  initials += parts[1].charAt(0).toUpperCase();
-		} else if (parts[0].length > 1) {
-		  initials += parts[0].charAt(1).toUpperCase();
-		} else {
-		  initials += initials; // Duplicate if only one character
-		}
-		return initials;
-	  },
-	  
     toggleLike() {
-      this.$emit('like-post', this.post._id)
+      this.isLiked = !this.isLiked;
+      const likeKey = `like_${this.post._id}_${this.currentUser.userId}`;
+      try {
+        uni.setStorageSync(likeKey, this.isLiked);
+      } catch (e) {
+        console.error('Failed to save like state:', e);
+      }
+      this.$emit('like-post', this.post._id, this.isLiked);
     },
     toggleComments() {
-      this.commentsVisible = !this.commentsVisible
+      this.commentsVisible = !this.commentsVisible;
     },
     addComment() {
-      if (!this.newComment.trim()) return
-      
+      if (!this.newComment.trim()) return;
       this.$emit('add-comment', {
         postId: this.post._id,
         commentText: this.newComment
-      })
-      this.newComment = ''
+      });
+      this.newComment = '';
     },
     showReplyInput(commentId) {
-      this.activeReplyInput = this.activeReplyInput === commentId ? null : commentId
+      this.activeReplyInput = this.activeReplyInput === commentId ? null : commentId;
       if (!this.replyTexts[commentId]) {
-        this.$set(this.replyTexts, commentId, '')
+        this.$set(this.replyTexts, commentId, '');
       }
     },
     addReply(commentId) {
-      const replyText = this.replyTexts[commentId]
-      if (!replyText || !replyText.trim()) return
-      
+      const replyText = this.replyTexts[commentId];
+      if (!replyText || !replyText.trim()) return;
       this.$emit('add-reply', {
         postId: this.post._id,
         commentId: commentId,
         replyText: replyText
-      })
-      
-      this.$set(this.replyTexts, commentId, '')
-      this.activeReplyInput = null
+      });
+      this.$set(this.replyTexts, commentId, '');
+      this.activeReplyInput = null;
     },
     deletePost() {
       uni.showModal({
@@ -203,28 +199,40 @@ export default {
         content: 'Are you sure you want to delete this post?',
         success: (res) => {
           if (res.confirm) {
-            this.$emit('delete-post', this.post._id)
+            this.$emit('delete-post', this.post._id);
           }
         }
-      })
+      });
+    },
+    getInitials(username) {
+      if (!username) return 'UU';
+      const parts = username.split(' ');
+      let initials = parts[0].charAt(0).toUpperCase();
+      if (parts.length > 1) {
+        initials += parts[1].charAt(0).toUpperCase();
+      } else if (parts[0].length > 1) {
+        initials += parts[0].charAt(1).toUpperCase();
+      } else {
+        initials += initials;
+      }
+      return initials;
     },
     formatRelativeTime(dateString) {
       const now = new Date();
       const targetDate = new Date(dateString);
       const diffMs = now - targetDate;
-
       const seconds = Math.floor(diffMs / 1000);
-      const minutes = Math.floor(diffMs / (1000 * 60));
-      const hours = Math.floor(diffMs / (1000 * 60 * 60));
-      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      const weeks = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 7));
+      const minutes = Math.floor(diffMs / 60 / 1000);
+      const hours = Math.floor(diffMs / 60 / 60 / 1000);
+      const days = Math.floor(diffMs / 24 / 60 / 60 / 1000);
+      const weeks = Math.floor(days / 7);
 
       if (seconds < 60) return 'Just now';
-      if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-      if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+      if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+      if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
       if (days === 1) return 'Yesterday';
       if (days < 7) return `${days} days ago`;
-      return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+      return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
     }
   }
 }
@@ -274,11 +282,23 @@ export default {
 }
 
 .delete-btn {
-  background: none;
-  border: none;
-  color: #65676b;
-  font-size: 18px;
-  padding: 5px;
+  /* color: #65676b; */
+  background-color: red;
+  color: #ffffff;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 8px;
+}
+
+.todo-btn {
+  /* color: #65676b; */
+  background-color: orange;
+  color: #ffffff;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 8px;
 }
 
 .card-body {
@@ -329,7 +349,7 @@ export default {
   font-size: 16px;
 }
 
-.action-btn.liked .like-icon {
+.action-btn.liked {
   color: #e0245e;
 }
 
@@ -453,12 +473,14 @@ export default {
 }
 
 .send-reply-btn {
-  background: none;
-  border: none;
-  color: #1877f2;
-  font-weight: 600;
-  font-size: 13px;
-  padding: 0 8px;
+	display: flex;
+	align-items: center;
+	background: none;
+	border: none;
+	color: #1877f2;
+	font-weight: 600;
+	font-size: 13px;
+	padding: 0 8px;
 }
 
 .new-comment {

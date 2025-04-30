@@ -112,8 +112,14 @@
         {
           "pagePath": "pages/index/index",
           "text": "Home",
-          "iconPath": "/static/home.png",
+          "iconPath": "/static/home-active.png",
           "selectedIconPath": "/static/home-active.png"
+        },
+        {
+          "pagePath": "pages/profile/profile",
+          "text": "Profile",
+          "iconPath": "/static/kindpng_4952535.png",
+          "selectedIconPath": "/static/kindpng_4952535.png"
         }
       ],
       "selectedIndex": 0,

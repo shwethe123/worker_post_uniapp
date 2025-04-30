@@ -35,11 +35,22 @@
   margin-left: auto;
 }
 .delete-btn[data-v-8e0ecb97] {
-  background: none;
-  border: none;
-  color: #65676b;
-  font-size: 18px;
-  padding: 5px;
+  /* color: #65676b; */
+  background-color: red;
+  color: #ffffff;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 8px;
+}
+.todo-btn[data-v-8e0ecb97] {
+  /* color: #65676b; */
+  background-color: orange;
+  color: #ffffff;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 8px;
 }
 .card-body[data-v-8e0ecb97] {
   margin: 10px 0;
@@ -82,7 +93,7 @@
   margin-right: 5px;
   font-size: 16px;
 }
-.action-btn.liked .like-icon[data-v-8e0ecb97] {
+.action-btn.liked[data-v-8e0ecb97] {
   color: #e0245e;
 }
 .comment-section[data-v-8e0ecb97] {
@@ -186,12 +197,14 @@
   font-size: 13px;
 }
 .send-reply-btn[data-v-8e0ecb97] {
-  background: none;
-  border: none;
-  color: #1877f2;
-  font-weight: 600;
-  font-size: 13px;
-  padding: 0 8px;
+	display: flex;
+	align-items: center;
+	background: none;
+	border: none;
+	color: #1877f2;
+	font-weight: 600;
+	font-size: 13px;
+	padding: 0 8px;
 }
 .new-comment[data-v-8e0ecb97] {
   display: flex;
