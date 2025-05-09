@@ -45,7 +45,7 @@ if (uni.restoreGlobal) {
     }
     return target;
   };
-  const _sfc_main$6 = {
+  const _sfc_main$7 = {
     props: {
       post: Object,
       currentUser: Object
@@ -141,6 +141,11 @@ if (uni.restoreGlobal) {
         }
         return initials;
       },
+      todoPost() {
+        uni.navigateTo({
+          url: `/pages/components/worker_todo?postId=${this.post._id}&content=${encodeURIComponent(this.post.content)}`
+        });
+      },
       formatRelativeTime(dateString) {
         const now = /* @__PURE__ */ new Date();
         const targetDate = new Date(dateString);
@@ -164,7 +169,7 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render$5(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$6(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "card" }, [
       vue.createCommentVNode(" Header "),
       vue.createElementVNode("view", { class: "card-header" }, [
@@ -212,7 +217,7 @@ if (uni.restoreGlobal) {
         ])) : vue.createCommentVNode("v-if", true),
         vue.createElementVNode("view", { class: "post-actions" }, [
           vue.createElementVNode("text", {
-            onClick: _cache[1] || (_cache[1] = (...args) => _ctx.todoPost && _ctx.todoPost(...args)),
+            onClick: _cache[1] || (_cache[1] = (...args) => $options.todoPost && $options.todoPost(...args)),
             class: "todo-btn"
           }, "Todo")
         ])
@@ -447,8 +452,8 @@ if (uni.restoreGlobal) {
       ])) : vue.createCommentVNode("v-if", true)
     ]);
   }
-  const PostCard = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["render", _sfc_render$5], ["__scopeId", "data-v-8e0ecb97"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/components/PostCard.vue"]]);
-  const _sfc_main$5 = {
+  const PostCard = /* @__PURE__ */ _export_sfc(_sfc_main$7, [["render", _sfc_render$6], ["__scopeId", "data-v-8e0ecb97"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/components/PostCard.vue"]]);
+  const _sfc_main$6 = {
     components: { PostCard },
     data() {
       return {
@@ -501,7 +506,7 @@ if (uni.restoreGlobal) {
         this.loading = true;
         try {
           const res = await uni.request({
-            url: "http://192.168.16.32:3000/api/posts",
+            url: "https://worker-post-backend.onrender.com/api/posts",
             header: {
               "x-auth-token": uni.getStorageSync("token")
             }
@@ -538,7 +543,7 @@ if (uni.restoreGlobal) {
           return;
         try {
           const res = await uni.request({
-            url: "http://192.168.16.32:3000/api/posts",
+            url: "https://worker-post-backend.onrender.com/api/posts",
             method: "POST",
             header: {
               "x-auth-token": uni.getStorageSync("token"),
@@ -583,7 +588,7 @@ if (uni.restoreGlobal) {
           const hasLiked = post.likes.includes(this.currentUser.userId);
           const method = hasLiked ? "DELETE" : "POST";
           const res = await uni.request({
-            url: `http://192.168.16.32:3000/api/posts/${postId}/like`,
+            url: `https://worker-post-backend.onrender.com/api/posts/${postId}/like`,
             method: "PUT",
             header: {
               "x-auth-token": uni.getStorageSync("token"),
@@ -617,7 +622,7 @@ if (uni.restoreGlobal) {
           return;
         try {
           const res = await uni.request({
-            url: `http://192.168.16.32:3000/api/posts/${postId}/comments`,
+            url: `https://worker-post-backend.onrender.com/api/posts/${postId}/comments`,
             method: "POST",
             header: {
               "x-auth-token": uni.getStorageSync("token"),
@@ -651,7 +656,7 @@ if (uni.restoreGlobal) {
           return;
         try {
           const res = await uni.request({
-            url: `http://192.168.16.32:3000/api/posts/${postId}/comments/${commentId}/replies`,
+            url: `https://worker-post-backend.onrender.com/api/posts/${postId}/comments/${commentId}/replies`,
             method: "POST",
             header: {
               "x-auth-token": uni.getStorageSync("token"),
@@ -691,7 +696,7 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render$4(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$5(_ctx, _cache, $props, $setup, $data, $options) {
     var _a;
     const _component_PostCard = vue.resolveComponent("PostCard");
     return vue.openBlock(), vue.createElementBlock("view", { class: "container" }, [
@@ -757,8 +762,8 @@ if (uni.restoreGlobal) {
       ))
     ]);
   }
-  const PagesIndexIndex = /* @__PURE__ */ _export_sfc(_sfc_main$5, [["render", _sfc_render$4], ["__scopeId", "data-v-1cf27b2a"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/index/index.vue"]]);
-  const _sfc_main$4 = {
+  const PagesIndexIndex = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["render", _sfc_render$5], ["__scopeId", "data-v-1cf27b2a"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/index/index.vue"]]);
+  const _sfc_main$5 = {
     data() {
       return {
         email: "",
@@ -783,7 +788,7 @@ if (uni.restoreGlobal) {
         try {
           formatAppLog("log", "at pages/auth/login.vue:62", "Sending login request...");
           const response = await uni.request({
-            url: "http://192.168.16.32:3000/api/users/login",
+            url: "https://worker-post-backend.onrender.com/api/users/login",
             method: "POST",
             data: {
               email: this.email,
@@ -834,7 +839,7 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render$3(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$4(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "login-container" }, [
       vue.createElementVNode("view", { class: "login-card" }, [
         vue.createElementVNode("text", { class: "title" }, "Welcome Back"),
@@ -882,8 +887,8 @@ if (uni.restoreGlobal) {
       ])
     ]);
   }
-  const PagesAuthLogin = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["render", _sfc_render$3], ["__scopeId", "data-v-2cc9f8c3"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/auth/login.vue"]]);
-  const _sfc_main$3 = {
+  const PagesAuthLogin = /* @__PURE__ */ _export_sfc(_sfc_main$5, [["render", _sfc_render$4], ["__scopeId", "data-v-2cc9f8c3"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/auth/login.vue"]]);
+  const _sfc_main$4 = {
     data() {
       return {
         username: "",
@@ -904,7 +909,7 @@ if (uni.restoreGlobal) {
         this.loading = true;
         try {
           const response = await uni.request({
-            url: "http://192.168.16.32:3000/api/users/register",
+            url: "https://worker-post-backend.onrender.com/api/users/register",
             method: "POST",
             data: {
               username: this.username,
@@ -932,7 +937,7 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render$2(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$3(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "register-container" }, [
       vue.createElementVNode("view", { class: "register-card" }, [
         vue.createElementVNode("text", { class: "title" }, "Create Account"),
@@ -995,8 +1000,8 @@ if (uni.restoreGlobal) {
       ])
     ]);
   }
-  const PagesAuthRegister = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["render", _sfc_render$2], ["__scopeId", "data-v-4bb68961"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/auth/register.vue"]]);
-  const _sfc_main$2 = {
+  const PagesAuthRegister = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["render", _sfc_render$3], ["__scopeId", "data-v-4bb68961"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/auth/register.vue"]]);
+  const _sfc_main$3 = {
     data() {
       return {
         currentUser: {},
@@ -1064,7 +1069,7 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render$1(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$2(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "profile-container" }, [
       vue.createCommentVNode(" Profile Header "),
       vue.createElementVNode("view", { class: "profile-header" }, [
@@ -1138,8 +1143,8 @@ if (uni.restoreGlobal) {
       ])
     ]);
   }
-  const PagesProfileProfile = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["render", _sfc_render$1], ["__scopeId", "data-v-dd383ca2"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/profile/profile.vue"]]);
-  const _sfc_main$1 = {
+  const PagesProfileProfile = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["render", _sfc_render$2], ["__scopeId", "data-v-dd383ca2"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/profile/profile.vue"]]);
+  const _sfc_main$2 = {
     methods: {
       navigateToEditProfile() {
         uni.navigateTo({ url: "/pages/profile/edit" });
@@ -1165,7 +1170,7 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$1(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "settings-container" }, [
       vue.createElementVNode("view", { class: "settings-header" }, [
         vue.createElementVNode("text", { class: "settings-title" }, "Settings")
@@ -1202,12 +1207,383 @@ if (uni.restoreGlobal) {
       ])
     ]);
   }
-  const PagesProfileSettings = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["render", _sfc_render], ["__scopeId", "data-v-eeefe5cd"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/profile/settings.vue"]]);
+  const PagesProfileSettings = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["render", _sfc_render$1], ["__scopeId", "data-v-eeefe5cd"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/profile/settings.vue"]]);
+  const _sfc_main$1 = {
+    data() {
+      return {
+        userID: "",
+        userContent: "",
+        newTask: "",
+        tasks: [],
+        editIndex: null,
+        editText: ""
+      };
+    },
+    onLoad(options) {
+      const postId = options.postId;
+      const content = decodeURIComponent(options.content);
+      this.postId = postId;
+      this.postContent = content;
+      formatAppLog("log", "at pages/components/worker_todo.vue:73", "Post ID:", postId);
+      formatAppLog("log", "at pages/components/worker_todo.vue:74", "Content:", content);
+      this.fetchTasks();
+    },
+    methods: {
+      fetchTasks() {
+        uni.request({
+          url: "http://worker-post-backend.onrender.com/api/tasks",
+          method: "GET",
+          success: (res) => {
+            if (Array.isArray(res.data)) {
+              this.tasks = res.data.map((item) => ({
+                id: item._id,
+                text: item.task,
+                content: item.content,
+                user_time: item.user_time,
+                createdAt: item.createdAt,
+                status: item.state,
+                showActions: false
+                // NEW
+              }));
+            } else {
+              formatAppLog("error", "at pages/components/worker_todo.vue:94", "Invalid data format:", res.data);
+            }
+          },
+          fail: (err) => {
+            formatAppLog("error", "at pages/components/worker_todo.vue:98", "Fetch failed", err);
+          }
+        });
+      },
+      addTask() {
+        if (!this.newTask.trim())
+          return;
+        uni.request({
+          url: "http://worker-post-backend.onrender.com/api/tasks",
+          method: "POST",
+          data: {
+            userID: this.userID,
+            userContent: this.userContent,
+            task: this.newTask,
+            state: "pending",
+            user_time: (/* @__PURE__ */ new Date()).toISOString(),
+            postId: this.postId,
+            content: this.postContent
+          },
+          success: () => {
+            this.newTask = "";
+            this.fetchTasks();
+            uni.showToast({
+              title: "Task added ✅",
+              icon: "success",
+              duration: 1500
+            });
+          },
+          fail: (err) => {
+            formatAppLog("error", "at pages/components/worker_todo.vue:128", "Add failed", err);
+          }
+        });
+      },
+      formatRelativeTime(dateString) {
+        const now = /* @__PURE__ */ new Date();
+        const targetDate = new Date(dateString);
+        const diffMs = now - targetDate;
+        const seconds = Math.floor(diffMs / 1e3);
+        const minutes = Math.floor(diffMs / 60 / 1e3);
+        const hours = Math.floor(diffMs / 60 / 60 / 1e3);
+        const days = Math.floor(diffMs / 24 / 60 / 60 / 1e3);
+        const weeks = Math.floor(days / 7);
+        if (seconds < 60)
+          return "Just now";
+        if (minutes < 60)
+          return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+        if (hours < 24)
+          return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+        if (days === 1)
+          return "Yesterday";
+        if (days < 7)
+          return `${days} days ago`;
+        return `${weeks} week${weeks !== 1 ? "s" : ""} ago`;
+      },
+      updateTaskStatus(index, newState) {
+        const task = this.tasks[index];
+        uni.request({
+          url: `http://worker-post-backend.onrender.com/api/tasks/${task.id}`,
+          method: "PATCH",
+          data: {
+            task: task.text,
+            state: newState,
+            user_time: (/* @__PURE__ */ new Date()).toISOString()
+          },
+          success: () => {
+            this.fetchTasks();
+          },
+          fail: (err) => {
+            formatAppLog("error", "at pages/components/worker_todo.vue:165", "Update failed", err);
+          }
+        });
+      },
+      startCheck(index) {
+        this.updateTaskStatus(index, "working");
+      },
+      notWork(index) {
+        this.updateTaskStatus(index, "pending");
+      },
+      markAsDone(index) {
+        this.updateTaskStatus(index, "done");
+        uni.showToast({
+          title: "Task completed ✅",
+          icon: "success",
+          duration: 1500
+        });
+      },
+      deleteTask(index) {
+        const task = this.tasks[index];
+        uni.request({
+          url: `http://worker-post-backend.onrender.com/api/tasks/${task.id}`,
+          method: "DELETE",
+          success: () => {
+            this.fetchTasks();
+            uni.showToast({
+              title: "Task deleted 🗑",
+              icon: "success",
+              duration: 1500
+            });
+          },
+          fail: (err) => {
+            formatAppLog("error", "at pages/components/worker_todo.vue:201", "Delete failed", err);
+          }
+        });
+      },
+      startEdit(index) {
+        this.editIndex = index;
+        this.editText = this.tasks[index].text;
+      },
+      saveEdit(index) {
+        if (!this.editText.trim())
+          return;
+        const task = this.tasks[index];
+        uni.request({
+          url: `http://worker-post-backend.onrender.com/api/tasks/${task.id}`,
+          method: "PATCH",
+          data: {
+            task: this.editText,
+            state: task.status,
+            user_time: (/* @__PURE__ */ new Date()).toISOString()
+          },
+          success: () => {
+            this.editIndex = null;
+            this.editText = "";
+            this.fetchTasks();
+            uni.showToast({
+              title: "Task updated ✏️",
+              icon: "success",
+              duration: 1500
+            });
+          },
+          fail: (err) => {
+            formatAppLog("error", "at pages/components/worker_todo.vue:233", "Edit failed", err);
+          }
+        });
+      },
+      cancelEdit() {
+        this.editIndex = null;
+        this.editText = "";
+      },
+      toggleActions(index) {
+        this.tasks[index].showActions = !this.tasks[index].showActions;
+      },
+      getStatusLabel(status) {
+        if (status === "done")
+          return "✔ ပြီးသွားပါပြီ";
+        if (status === "working")
+          return "🔄 လုပ်နေပါသည်";
+        return "⏸ မလုပ်သေးပါ";
+      }
+    }
+  };
+  function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+    return vue.openBlock(), vue.createElementBlock("view", { class: "container" }, [
+      vue.createElementVNode("view", { class: "header" }, [
+        vue.withDirectives(vue.createElementVNode(
+          "input",
+          {
+            "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => $data.newTask = $event),
+            placeholder: "လုပ်စရာရေးပါ...",
+            onConfirm: _cache[1] || (_cache[1] = (...args) => $options.addTask && $options.addTask(...args))
+          },
+          null,
+          544
+          /* NEED_HYDRATION, NEED_PATCH */
+        ), [
+          [vue.vModelText, $data.newTask]
+        ]),
+        vue.createElementVNode("button", {
+          class: "add-btn",
+          onClick: _cache[2] || (_cache[2] = (...args) => $options.addTask && $options.addTask(...args))
+        }, "➕ ထည့်မယ်")
+      ]),
+      vue.createElementVNode("view", { class: "task-list" }, [
+        (vue.openBlock(true), vue.createElementBlock(
+          vue.Fragment,
+          null,
+          vue.renderList($data.tasks, (task, index) => {
+            return vue.openBlock(), vue.createElementBlock(
+              "view",
+              {
+                class: vue.normalizeClass(["task-item", task.status]),
+                key: task.id
+              },
+              [
+                vue.createElementVNode("view", { class: "task-text" }, [
+                  $data.editIndex === index ? vue.withDirectives((vue.openBlock(), vue.createElementBlock(
+                    "input",
+                    {
+                      key: 0,
+                      "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => $data.editText = $event),
+                      class: "edit-input"
+                    },
+                    null,
+                    512
+                    /* NEED_PATCH */
+                  )), [
+                    [vue.vModelText, $data.editText]
+                  ]) : (vue.openBlock(), vue.createElementBlock(
+                    vue.Fragment,
+                    { key: 1 },
+                    [
+                      vue.createElementVNode("view", { class: "task_item" }, [
+                        vue.createElementVNode(
+                          "text",
+                          {
+                            class: vue.normalizeClass(["task-label", task.status])
+                          },
+                          vue.toDisplayString(task.text),
+                          3
+                          /* TEXT, CLASS */
+                        ),
+                        vue.createElementVNode(
+                          "text",
+                          { class: "status-label" },
+                          vue.toDisplayString($options.getStatusLabel(task.status)),
+                          1
+                          /* TEXT */
+                        )
+                      ]),
+                      vue.createElementVNode("view", { style: { "display": "flex", "flex-direction": "column" } }, [
+                        vue.createElementVNode(
+                          "text",
+                          { style: { "font-size": "12px", "color": "#748cab", "margin-left": "6px" } },
+                          vue.toDisplayString($options.formatRelativeTime(task.createdAt)),
+                          1
+                          /* TEXT */
+                        ),
+                        vue.createElementVNode(
+                          "text",
+                          {
+                            class: vue.normalizeClass(["task-label", task.status])
+                          },
+                          vue.toDisplayString(task.content),
+                          3
+                          /* TEXT, CLASS */
+                        ),
+                        vue.createElementVNode(
+                          "text",
+                          { style: { "font-size": "12px", "color": "#748cab", "margin-left": "6px" } },
+                          vue.toDisplayString($options.formatRelativeTime(task.user_time)) + " တွင်ပြင်ဆင်ခဲ့သည်။",
+                          1
+                          /* TEXT */
+                        )
+                      ])
+                    ],
+                    64
+                    /* STABLE_FRAGMENT */
+                  ))
+                ]),
+                vue.createCommentVNode(" Show Actions Only When See More is Toggled "),
+                task.showActions ? (vue.openBlock(), vue.createElementBlock("view", {
+                  key: 0,
+                  class: "action-group"
+                }, [
+                  vue.createElementVNode("view", { class: "actions" }, [
+                    vue.createElementVNode("button", {
+                      class: "start-btn",
+                      onClick: ($event) => $options.startCheck(index)
+                    }, "✅ စတင်", 8, ["onClick"]),
+                    vue.createElementVNode("button", {
+                      class: "pause-btn",
+                      onClick: ($event) => $options.notWork(index)
+                    }, "⏸ မလုပ်သေး", 8, ["onClick"]),
+                    task.status === "working" ? (vue.openBlock(), vue.createElementBlock("button", {
+                      key: 0,
+                      class: "success-btn",
+                      onClick: ($event) => $options.markAsDone(index)
+                    }, "✅ အောင်မြင်", 8, ["onClick"])) : vue.createCommentVNode("v-if", true)
+                  ]),
+                  vue.createElementVNode("view", { class: "actions" }, [
+                    $data.editIndex === index ? (vue.openBlock(), vue.createElementBlock(
+                      vue.Fragment,
+                      { key: 0 },
+                      [
+                        vue.createElementVNode("button", {
+                          class: "add-btn",
+                          onClick: ($event) => $options.saveEdit(index)
+                        }, "💾 သိမ်းမယ်", 8, ["onClick"]),
+                        vue.createElementVNode("button", {
+                          class: "delete-btn",
+                          onClick: _cache[4] || (_cache[4] = (...args) => $options.cancelEdit && $options.cancelEdit(...args))
+                        }, "❌ မပြင်တော့ဘူး")
+                      ],
+                      64
+                      /* STABLE_FRAGMENT */
+                    )) : (vue.openBlock(), vue.createElementBlock(
+                      vue.Fragment,
+                      { key: 1 },
+                      [
+                        vue.createElementVNode("button", {
+                          class: "edit-btn",
+                          onClick: ($event) => $options.startEdit(index)
+                        }, "✏ ပြင်မယ်", 8, ["onClick"]),
+                        vue.createElementVNode("button", {
+                          class: "delete-btn",
+                          onClick: ($event) => $options.deleteTask(index)
+                        }, "🗑 ဖျက်မယ်", 8, ["onClick"])
+                      ],
+                      64
+                      /* STABLE_FRAGMENT */
+                    ))
+                  ])
+                ])) : vue.createCommentVNode("v-if", true),
+                vue.createCommentVNode(" See More Toggle "),
+                vue.createElementVNode("view", {
+                  style: { "background-color": "#29B6F6", "font-size": "13px", "color": "white", "width": "28%", "text-align": "center", "border-radius": "6px", "padding": "6px" },
+                  onClick: ($event) => $options.toggleActions(index)
+                }, [
+                  vue.createElementVNode(
+                    "text",
+                    null,
+                    vue.toDisplayString(task.showActions ? "Hide" : "See More"),
+                    1
+                    /* TEXT */
+                  )
+                ], 8, ["onClick"])
+              ],
+              2
+              /* CLASS */
+            );
+          }),
+          128
+          /* KEYED_FRAGMENT */
+        ))
+      ])
+    ]);
+  }
+  const PagesComponentsWorkerTodo = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["render", _sfc_render], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/components/worker_todo.vue"]]);
   __definePage("pages/index/index", PagesIndexIndex);
   __definePage("pages/auth/login", PagesAuthLogin);
   __definePage("pages/auth/register", PagesAuthRegister);
   __definePage("pages/profile/profile", PagesProfileProfile);
   __definePage("pages/profile/settings", PagesProfileSettings);
+  __definePage("pages/components/worker_todo", PagesComponentsWorkerTodo);
   const _sfc_main = {
     onLaunch: function() {
       formatAppLog("log", "at App.vue:4", "App Launch");

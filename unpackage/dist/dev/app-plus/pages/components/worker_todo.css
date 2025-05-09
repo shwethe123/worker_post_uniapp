@@ -1,0 +1,180 @@
+
+.container {
+  padding: 1.25rem;
+  background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+  min-height: 100vh;
+  font-family: 'Helvetica Neue', sans-serif;
+}
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 1.25rem;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 0.625rem;
+  border-radius: 0.625rem;
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+uni-input {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  box-shadow: 0 0.125rem 0.3125rem rgba(0, 0, 0, 0.05);
+}
+.edit-input {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+  margin-left: 0.625rem;
+  border: 1px solid #03A9F4;
+  box-shadow: 0 0.125rem 0.3125rem rgba(3, 169, 244, 0.1);
+}
+.add-btn {
+  padding: 0.625rem 1rem;
+  background: linear-gradient(to right, #4CAF50, #81C784);
+  color: white;
+  border-radius: 0.625rem;
+  font-size: 0.875rem;
+  border: none;
+  box-shadow: 0 0.1875rem 0.375rem rgba(76, 175, 80, 0.3);
+}
+.task-list {
+  padding-bottom: 0.9375rem;
+}
+.task-item {
+  background: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+  border-radius: 0.75rem;
+  padding: 0.875rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 0.1875rem 0.4375rem rgba(0, 0, 0, 0.06);
+  border-left: 0.375rem solid transparent;
+  transition: border-color 0.3s ease;
+}
+.task-item.pending {
+  border-left-color: #78909C;
+}
+.task-item.working {
+  border-left-color: #FFA000;
+}
+.task-item.done {
+  border-left-color: #388E3C;
+}
+.task-text {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+.task-label {
+  font-size: 0.9375rem;
+  margin-left: 0.5rem;
+  color: #333;
+  flex: 1;
+  word-break: break-word;
+}
+.task-label.done {
+  text-decoration: line-through;
+  color: #9E9E9E;
+}
+.task-label.working {
+  color: #FF9800;
+}
+.task-label.pending {
+  color: #607D8B;
+}
+.action-group {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+  border-radius: 0.625rem;
+  padding: 0.625rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 0.125rem 0.3125rem rgba(0, 0, 0, 0.05);
+}
+.actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.status-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #444;
+  background: #E0F2F1;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+}
+uni-button {
+  padding: 0.4375rem 0.8125rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: white;
+  transition: background 0.3s, transform 0.2s;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
+}
+uni-button:active {
+  transform: scale(0.95);
+}
+
+/* Individual Buttons */
+.start-btn {
+  background: linear-gradient(to right, #03A9F4, #29B6F6);
+  width: 100%;
+  padding: 2px;
+  padding: 2px 8px 2px 8px;
+}
+.pause-btn {
+  background: linear-gradient(to right, #FFC107, #FFD54F);
+  width: 100%;
+  color: #333;
+  padding: 2px 8px 2px 8px;
+}
+.success-btn {
+  background: linear-gradient(to right, #4CAF50, #81C784);
+  width: 100%;
+  padding: 2px;
+  padding: 2px 8px 2px 8px;
+}
+.edit-btn {
+  background: linear-gradient(to right, #7E57C2, #9575CD);
+  width: 100%;
+  padding: 2px;
+  padding: 2px 8px 2px 8px;
+}
+.delete-btn {
+  background: linear-gradient(to right, #E53935, #EF5350);
+  width: 100%;
+  padding: 2px;
+  padding: 2px 8px 2px 8px;
+}
+.add-btn {
+  background: linear-gradient(to right, #388E3C, #66BB6A);
+  padding: 2px;
+  padding: 2px 8px 2px 8px;
+}
+.task_item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}

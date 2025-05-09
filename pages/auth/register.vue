@@ -46,7 +46,7 @@ export default {
       
       try {
         const response = await uni.request({
-          url: 'http://192.168.16.32:3000/api/users/register',
+          url: 'https://worker-post-backend.onrender.com/api/users/register',
           method: 'POST',
           data: {
             username: this.username,

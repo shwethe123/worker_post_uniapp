@@ -106,7 +106,7 @@ export default {
       this.loading = true;
       try {
         const res = await uni.request({
-          url: 'http://192.168.16.32:3000/api/posts',
+          url: 'https://worker-post-backend.onrender.com/api/posts',
           header: {
             'x-auth-token': uni.getStorageSync('token')
           }
@@ -145,7 +145,7 @@ export default {
 
       try {
         const res = await uni.request({
-          url: 'http://192.168.16.32:3000/api/posts',
+          url: 'https://worker-post-backend.onrender.com/api/posts',
           method: 'POST',
           header: {
             'x-auth-token': uni.getStorageSync('token'),
@@ -196,7 +196,7 @@ export default {
         const method = hasLiked ? 'DELETE' : 'POST';
         
         const res = await uni.request({
-          url: `http://192.168.16.32:3000/api/posts/${postId}/like`,
+          url: `https://worker-post-backend.onrender.com/api/posts/${postId}/like`,
           method: 'PUT',
           header: {
             'x-auth-token': uni.getStorageSync('token'),
@@ -234,7 +234,7 @@ export default {
 
       try {
         const res = await uni.request({
-          url: `http://192.168.16.32:3000/api/posts/${postId}/comments`,
+          url: `https://worker-post-backend.onrender.com/api/posts/${postId}/comments`,
           method: 'POST',
           header: {
             'x-auth-token': uni.getStorageSync('token'),
@@ -270,7 +270,7 @@ export default {
 
       try {
         const res = await uni.request({
-          url: `http://192.168.16.32:3000/api/posts/${postId}/comments/${commentId}/replies`,
+          url: `https://worker-post-backend.onrender.com/api/posts/${postId}/comments/${commentId}/replies`,
           method: 'POST',
           header: {
             'x-auth-token': uni.getStorageSync('token'),

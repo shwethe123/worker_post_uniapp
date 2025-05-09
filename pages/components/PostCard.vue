@@ -14,7 +14,7 @@
               ? currentUser.username 
               : post.user.username)
           }}
-        </view>
+        </view>	
       </view>
 
       <view class="user-info">
@@ -217,6 +217,11 @@ export default {
       }
       return initials;
     },
+	todoPost() {
+		uni.navigateTo({
+			url: `/pages/components/worker_todo?postId=${this.post._id}&content=${encodeURIComponent(this.post.content)}`
+		})
+	},
     formatRelativeTime(dateString) {
       const now = new Date();
       const targetDate = new Date(dateString);

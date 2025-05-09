@@ -27,11 +27,17 @@
 		  "navigationBarTitleText": "Profile"
 		}
 	  },
+		{
+		"path": "pages/profile/settings",
+		"style": {
+		  "navigationBarTitleText": "settings"
+		}
+	},
 	{
-	"path": "pages/profile/settings",
-	"style": {
-	  "navigationBarTitleText": "settings"
-	}
+	  "path": "pages/components/worker_todo",
+	  "style": {
+	    "navigationBarTitleText": "ToDo List"
+	  }
 	}
   ],
   "tabBar": {
