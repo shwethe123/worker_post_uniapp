@@ -38,16 +38,28 @@
 	  "style": {
 	    "navigationBarTitleText": "ToDo List"
 	  }
+	},
+	{
+	  "path": "pages/components/workSpaces",
+	  "style": {
+	    "navigationBarTitleText": "Workspaces"
+	  }
 	}
   ],
   "tabBar": {
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "Home",
+        "text": "Feed",
         "iconPath": "static/home-active.png",
         "selectedIconPath": "static/home-active.png"
       },
+	  {
+	    "pagePath": "pages/components/workSpaces",
+	    "text": "Workspaces",
+	    "iconPath": "static/home-active.png",
+	    "selectedIconPath": "static/home-active.png"
+	  },
 	  {
         "pagePath": "pages/profile/profile",
         "text": "Profile",

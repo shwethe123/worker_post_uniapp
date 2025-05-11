@@ -1231,7 +1231,7 @@ if (uni.restoreGlobal) {
     methods: {
       fetchTasks() {
         uni.request({
-          url: "http://worker-post-backend.onrender.com/api/tasks",
+          url: "https://worker-post-backend.onrender.com/api/tasks",
           method: "GET",
           success: (res) => {
             if (Array.isArray(res.data)) {
@@ -1258,7 +1258,7 @@ if (uni.restoreGlobal) {
         if (!this.newTask.trim())
           return;
         uni.request({
-          url: "http://worker-post-backend.onrender.com/api/tasks",
+          url: "https://worker-post-backend.onrender.com/api/tasks",
           method: "POST",
           data: {
             userID: this.userID,
@@ -1307,7 +1307,7 @@ if (uni.restoreGlobal) {
       updateTaskStatus(index, newState) {
         const task = this.tasks[index];
         uni.request({
-          url: `http://worker-post-backend.onrender.com/api/tasks/${task.id}`,
+          url: `https://worker-post-backend.onrender.com/api/tasks/${task.id}`,
           method: "PATCH",
           data: {
             task: task.text,
@@ -1339,7 +1339,7 @@ if (uni.restoreGlobal) {
       deleteTask(index) {
         const task = this.tasks[index];
         uni.request({
-          url: `http://worker-post-backend.onrender.com/api/tasks/${task.id}`,
+          url: `https://worker-post-backend.onrender.com/api/tasks/${task.id}`,
           method: "DELETE",
           success: () => {
             this.fetchTasks();
@@ -1363,7 +1363,7 @@ if (uni.restoreGlobal) {
           return;
         const task = this.tasks[index];
         uni.request({
-          url: `http://worker-post-backend.onrender.com/api/tasks/${task.id}`,
+          url: `https://worker-post-backend.onrender.com/api/tasks/${task.id}`,
           method: "PATCH",
           data: {
             task: this.editText,
