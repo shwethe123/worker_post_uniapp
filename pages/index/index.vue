@@ -2,14 +2,14 @@
   <view class="container">
     <view class="new-post">
       <view class="user-avatar-wrapper">
-		<image
-		  v-if="post && post.avatar"
-		  :src="post.avatar"
-		  class="post-avatar"
-		/>
-        <view v-else class="user-avatar-text">
-          {{ getInitials(currentUser?.username) }}
-        </view>
+			<image
+			  v-if="post && post.avatar"
+			  :src="post.avatar"
+			  class="post-avatar"
+			/>
+		<view v-else class="user-avatar-text">
+		  {{ getInitials(currentUser?.username) }}
+		</view>
       </view>
       <view style="width: 100%;">
         <input
@@ -21,19 +21,23 @@
 
         <view v-if="showPostButton" class="post-actions">
           <view class="file-upload-wrapper">
-			<button class="upload-button modern" @click="chooseImage">
-			  <uni-icons type="camera-filled" size="16" color="#1877f2"></uni-icons>
-			  <text>Add Photo</text>
-			</button>
-            <image v-if="imagePreview" :src="imagePreview" class="image-preview" mode="aspectFit" />
+            <button class="upload-button modern" @click="chooseImage">
+              <!-- <uni-icons type="camera-filled" size="16" color="#1877f2" /> -->
+              <text>Add Photo</text>
+            </button>
+            <image
+              v-if="imagePreview"
+              :src="imagePreview"
+              class="image-preview"
+              mode="aspectFit"
+            />
             <button v-if="imagePreview" @click="removeImage" class="remove-image-button">
               ×
             </button>
           </view>
-          <button 
-            v-if="showPostButton" 
-            @click="addPost"
+          <button
             class="post-button"
+            @click="addPost"
             :disabled="!newPostContent.trim() && !imagePreview"
           >
             Post
@@ -42,25 +46,48 @@
       </view>
     </view>
 
-    <view v-if="loading" class="loading">
-      <text>Loading posts...</text>
-    </view>
+    <scroll-view
+      scroll-y
+      class="post-list"
+      refresher-enabled
+      :refresher-triggered="isRefreshing"
+      @refresherrefresh="onRefresh"
+      @scrolltolower="loadMorePosts"
+    >
+      <view class="refresh-indicator" v-if="isRefreshing">
+        <text>Loading...</text>
+      </view>
 
-    <PostCard
-      v-for="(post, index) in posts"
-      :key="post._id || index"
-      :post="post"
-      :current-user="currentUser"
-      @like-post="handleLike"
-      @add-comment="handleAddComment"
-      @add-reply="handleAddReply"
-      @delete-post="handleDeletePost"
-    />
+      <view v-if="loading && visiblePosts.length === 0" class="loading">
+        <text>Loading posts...</text>
+      </view>
+
+      <view v-else-if="visiblePosts.length === 0" class="no-posts">
+        <text>No posts yet. Be the first to post!</text>
+      </view>
+
+      <PostCard
+        v-for="(post, index) in visiblePosts"
+        :key="post._id || index"
+        :post="post"
+        :current-user="currentUser"
+        @like-post="handleLike"
+        @add-comment="handleAddComment"
+        @add-reply="handleAddReply"
+        @delete-post="handleDeletePost"
+      />
+
+      <view v-if="hasMorePosts" class="load-more-hint">
+        <text>Pull up to load more posts</text>
+      </view>
+    </scroll-view>
   </view>
 </template>
 
 <script>
-import PostCard from '@/pages/components/PostCard.vue'
+import PostCard from '@/pages/components/PostCard.vue';
+// import uniIcons from '@dcloudio/uni-ui/lib/uni-icons/uni-icons.vue';
+
 
 export default {
   components: { PostCard },
@@ -70,10 +97,15 @@ export default {
       newPostContent: '',
       showPostButton: false,
       posts: [],
+      visiblePosts: [],
       loading: false,
       imagePreview: null,
-      tempFilePath: null
-    }
+      tempFilePath: null,
+      isRefreshing: false,
+      postsPerPage: 8,
+      currentPage: 1,
+      hasMorePosts: false
+    };
   },
   async onLoad() {
     const token = uni.getStorageSync('token');
@@ -82,11 +114,8 @@ export default {
       return;
     }
 
-    // Get stored user data
     const storedUser = uni.getStorageSync('user');
-    
     if (storedUser && (storedUser.userId || storedUser.id || storedUser._id)) {
-      // Normalize user data structure
       this.currentUser = {
         userId: storedUser.userId || storedUser.id || storedUser._id,
         username: storedUser.username,
@@ -94,7 +123,6 @@ export default {
         avatar: storedUser.avatar || '/static/default-avatar.png'
       };
     } else {
-      // If no valid user data, force logout
       uni.removeStorageSync('token');
       uni.removeStorageSync('user');
       uni.redirectTo({ url: '/pages/auth/login' });
@@ -122,16 +150,18 @@ export default {
       this.loading = true;
       try {
         const res = await uni.request({
-          url: 'http://localhost:3000/api/posts',
+          url: 'http://192.168.16.32:3000/api/posts',
           header: {
             'x-auth-token': uni.getStorageSync('token')
           }
         });
 
         this.posts = res.data || this.getMockPosts();
+        this.updateVisiblePosts();
       } catch (error) {
         console.error('Fetch posts error:', error);
         this.posts = this.getMockPosts();
+        this.updateVisiblePosts();
         uni.showToast({
           title: 'Using mock data',
           icon: 'none'
@@ -149,11 +179,33 @@ export default {
           userId: 'demo-123',
           avatar: '/static/avatar.png',
           timestamp: 'Just now',
-          content: 'This is sample post',
+          content: 'This is a sample post',
           likes: [],
           comments: []
         }
       ];
+    },
+
+    updateVisiblePosts() {
+      const endIndex = this.currentPage * this.postsPerPage;
+      this.visiblePosts = this.posts.slice(0, endIndex);
+      this.hasMorePosts = endIndex < this.posts.length;
+    },
+
+    onRefresh() {
+      this.isRefreshing = true;
+      setTimeout(() => {
+        this.currentPage = 1;
+        this.fetchPosts().finally(() => {
+          this.isRefreshing = false;
+        });
+      }, 1000);
+    },
+
+    loadMorePosts() {
+      if (!this.hasMorePosts || this.isRefreshing) return;
+      this.currentPage++;
+      this.updateVisiblePosts();
     },
 
     chooseImage() {
@@ -180,73 +232,56 @@ export default {
       this.tempFilePath = null;
     },
 
-	async uploadImage() {
-	  if (!this.tempFilePath) return null;
-
-	  try {
-		const token = uni.getStorageSync('token');
-		const res = await uni.uploadFile({
-		  url: 'http://localhost:3000/api/posts', // ✅ ဒီမှာ image-only POST API မရှိဘူး
-		  filePath: this.tempFilePath,
-		  name: 'image',
-		  formData: {
-			content: this.newPostContent  // ✅ content လည်း formData နဲ့ပေးရမယ်
-		  },
-		  header: {
-			'x-auth-token': token
-		  }
-		});
-
-		const data = JSON.parse(res.data);
-		return data.imageUrl || null;  // ✅ response မှာ imageUrl ရှိမယ်ဆိုပြီး ပြင်ထား
-	  } catch (error) {
-		console.error('Image upload failed:', error);
-		uni.showToast({
-		  title: 'Image upload failed',
-		  icon: 'none'
-		});
-		return null;
-	  }
-	},
+    async uploadImageAndPost() {
+      const token = uni.getStorageSync('token');
+      return new Promise((resolve, reject) => {
+        uni.uploadFile({
+          url: 'http://192.168.16.32:3000/api/posts',
+          filePath: this.tempFilePath,
+          name: 'image',
+          formData: {
+            content: this.newPostContent
+          },
+          header: {
+            'x-auth-token': token
+          },
+          success: (uploadRes) => {
+            try {
+              const data = JSON.parse(uploadRes.data);
+              resolve(data);
+            } catch (e) {
+              reject(new Error('Invalid response from server'));
+            }
+          },
+          fail: (err) => {
+            console.error('Upload failed:', err);
+            reject(err);
+          }
+        });
+      });
+    },
 
     async addPost() {
-      if (!this.newPostContent.trim() && !this.imagePreview) return;
+      if (!this.newPostContent.trim() && !this.tempFilePath) return;
 
+      let newPost = null;
       try {
-        let imageUrl = null;
         if (this.tempFilePath) {
-          imageUrl = await this.uploadImage();
+          newPost = await this.uploadImageAndPost();
+        } else {
+          const res = await uni.request({
+            url: 'http://192.168.16.32:3000/api/posts',
+            method: 'POST',
+            header: {
+              'x-auth-token': uni.getStorageSync('token'),
+              'Content-Type': 'application/json'
+            },
+            data: {
+              content: this.newPostContent
+            }
+          });
+          newPost = res.data;
         }
-
-        const postData = {
-          content: this.newPostContent
-        };
-        
-        if (imageUrl) {
-          postData.image = imageUrl;
-        }
-
-        const res = await uni.request({
-          url: 'http://localhost:3000/api/posts',
-          method: 'POST',
-          header: {
-            'x-auth-token': uni.getStorageSync('token'),
-            'Content-Type': 'application/json'
-          },
-          data: postData
-        });
-
-        const newPost = res?.data || {
-          _id: 'mock-' + Date.now(),
-          username: this.currentUser?.username || 'Unknown User',
-          userId: this.currentUser?.userId || 'unknown',
-          avatar: this.currentUser?.avatar || '/static/default-avatar.png',
-          timestamp: 'Just now',
-          content: this.newPostContent,
-          image: imageUrl || null,
-          likes: [],
-          comments: []
-        };
 
         this.posts.unshift(newPost);
         this.newPostContent = '';
@@ -254,12 +289,15 @@ export default {
         this.imagePreview = null;
         this.tempFilePath = null;
 
+        this.currentPage = 1;
+        this.updateVisiblePosts();
+
         uni.showToast({
           title: 'Posted successfully',
           icon: 'success'
         });
       } catch (error) {
-        console.error('Create post error:', error);
+        console.error('Post failed:', error);
         uni.showToast({
           title: 'Failed to post',
           icon: 'none'
@@ -270,42 +308,29 @@ export default {
     async handleLike(postId) {
       try {
         const post = this.posts.find(p => p._id === postId);
-        if (!post) {
-          console.error('Post not found:', postId);
-          return;
-        }
+        if (!post) return;
 
-        const hasLiked = post.likes.includes(this.currentUser.userId);
-        const method = hasLiked ? 'DELETE' : 'POST';
-        
         const res = await uni.request({
-          url: `http://localhost:3000/api/posts/${postId}/like`,
+          url: `http://192.168.16.32:3000/api/posts/${postId}/like`,
           method: 'PUT',
           header: {
-            'x-auth-token': uni.getStorageSync('token'),
-            'Content-Type': 'application/json'
+            'x-auth-token': uni.getStorageSync('token')
           }
         });
 
-        if (!res || res.statusCode !== 200) {
+        if (res.statusCode === 200) {
+          const updatedPost = res.data;
+          const index = this.posts.findIndex(p => p._id === postId);
+          if (index !== -1) {
+            this.posts.splice(index, 1, updatedPost);
+          }
+        } else {
           throw new Error('Failed to update like');
         }
-
-        const updatedPost = res.data;
-        const index = this.posts.findIndex(p => p._id === postId);
-        if (index !== -1) {
-          this.posts.splice(index, 1, updatedPost);
-        }
-
-        uni.showToast({
-          title: hasLiked ? 'Unliked' : 'Liked',
-          icon: 'success'
-        });
-
       } catch (error) {
-        console.error('Like failed:', error);
+        console.error('Like error:', error);
         uni.showToast({
-          title: error.message || 'Failed to update like',
+          title: 'Like failed',
           icon: 'none'
         });
       }
@@ -317,87 +342,66 @@ export default {
 
       try {
         const res = await uni.request({
-          url: `http://localhost:3000/api/posts/${postId}/comments`,
+          url: `http://192.168.16.32:3000/api/posts/${postId}/comments`,
           method: 'POST',
           header: {
             'x-auth-token': uni.getStorageSync('token'),
             'Content-Type': 'application/json'
           },
-          data: {
-            text: commentText
-          }
+          data: { text: commentText }
         });
 
-        const comment = res.data || {
-          _id: `comment-${Date.now()}`,
-          user: this.currentUser?.username || 'Anonymous',
-          userId: this.currentUser?.userId || 'unknown',
-          text: commentText,
-          timestamp: 'Just now',
-          replies: []
-        };
-
-        post.comments.unshift(comment);
+        post.comments.unshift(res.data);
       } catch (error) {
-        console.error('Add comment failed:', error);
-        uni.showToast({ title: 'Failed to add comment', icon: 'none' });
+        console.error('Comment failed:', error);
+        uni.showToast({
+          title: 'Failed to add comment',
+          icon: 'none'
+        });
       }
     },
 
     async handleAddReply({ postId, commentId, replyText }) {
       const post = this.posts.find(p => p._id === postId);
       if (!post) return;
-
       const comment = post.comments.find(c => c._id === commentId);
       if (!comment) return;
 
       try {
         const res = await uni.request({
-          url: `http://localhost:3000/api/posts/${postId}/comments/${commentId}/replies`,
+          url: `http://192.168.16.32:3000/api/posts/${postId}/comments/${commentId}/replies`,
           method: 'POST',
           header: {
             'x-auth-token': uni.getStorageSync('token'),
             'Content-Type': 'application/json'
           },
-          data: {
-            text: replyText
-          }
+          data: { text: replyText }
         });
 
-        const newReply = res.data || {
-          _id: `reply-${Date.now()}`,
-          user: this.currentUser?.username || 'Anonymous',
-          userId: this.currentUser?.userId || 'unknown',
-          text: replyText,
-          timestamp: 'Just now'
-        };
-
-        comment.replies.push(newReply);
-
-        uni.showToast({
-          title: 'Reply added',
-          icon: 'success'
-        });
-
+        comment.replies.push(res.data);
       } catch (error) {
-        console.error('Add reply failed:', error);
-        uni.showToast({ title: 'Failed to add reply', icon: 'none' });
+        console.error('Reply error:', error);
+        uni.showToast({
+          title: 'Failed to reply',
+          icon: 'none'
+        });
       }
     },
 
     handleDeletePost(postId) {
       uni.showModal({
         title: 'Delete Post',
-        content: 'Are you sure?',
+        content: 'Are you sure you want to delete this post?',
         success: (res) => {
           if (res.confirm) {
-            this.posts = this.posts.filter(post => post._id !== postId);
+            this.posts = this.posts.filter(p => p._id !== postId);
+            this.updateVisiblePosts();
           }
         }
       });
     }
   }
-}
+};
 </script>
 
 <style scoped>
@@ -516,5 +520,33 @@ export default {
   text-align: center;
   padding: 20px;
   color: #666;
+}
+
+.post-list {
+  /* height: calc(100vh - 120px); */
+  height: 100vh;
+  padding-bottom: 20px;
+}
+
+.refresh-indicator {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+  font-size: 14px;
+}
+
+.load-more-hint {
+  text-align: center;
+  padding: 15px;
+  color: #666;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.no-posts {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-size: 16px;
 }
 </style>

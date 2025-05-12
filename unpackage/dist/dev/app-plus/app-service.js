@@ -45,7 +45,7 @@ if (uni.restoreGlobal) {
     }
     return target;
   };
-  const _sfc_main$7 = {
+  const _sfc_main$8 = {
     props: {
       post: Object,
       currentUser: Object
@@ -71,7 +71,6 @@ if (uni.restoreGlobal) {
           this.isLiked = (_a = this.post.likes) == null ? void 0 : _a.some((u) => u._id === this.currentUser.userId);
         }
       } catch (e) {
-        formatAppLog("error", "at pages/components/PostCard.vue:153", "Storage error:", e);
         this.isLiked = (_b = this.post.likes) == null ? void 0 : _b.some((u) => u._id === this.currentUser.userId);
       }
     },
@@ -82,7 +81,12 @@ if (uni.restoreGlobal) {
         try {
           uni.setStorageSync(likeKey, this.isLiked);
         } catch (e) {
-          formatAppLog("error", "at pages/components/PostCard.vue:164", "Failed to save like state:", e);
+          formatAppLog("error", "at pages/components/PostCard.vue:166", "Failed to save like state:", e);
+        }
+        if (this.isLiked) {
+          this.post.likes.push({ _id: this.currentUser.userId });
+        } else {
+          this.post.likes = this.post.likes.filter((u) => u._id !== this.currentUser.userId);
         }
         this.$emit("like-post", this.post._id, this.isLiked);
       },
@@ -166,10 +170,20 @@ if (uni.restoreGlobal) {
         if (days < 7)
           return `${days} days ago`;
         return `${weeks} week${weeks !== 1 ? "s" : ""} ago`;
+      },
+      previewImage() {
+        if (!this.post.image)
+          return;
+        uni.previewImage({
+          current: this.post.image,
+          // current image URL
+          urls: [this.post.image]
+          // array of images to preview
+        });
       }
     }
   };
-  function _sfc_render$6(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$7(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "card" }, [
       vue.createCommentVNode(" Header "),
       vue.createElementVNode("view", { class: "card-header" }, [
@@ -230,7 +244,14 @@ if (uni.restoreGlobal) {
           vue.toDisplayString($props.post.content),
           1
           /* TEXT */
-        )
+        ),
+        $props.post.image ? (vue.openBlock(), vue.createElementBlock("image", {
+          key: 0,
+          src: $props.post.image,
+          class: "post-image",
+          mode: "widthFix",
+          onClick: _cache[2] || (_cache[2] = (...args) => $options.previewImage && $options.previewImage(...args))
+        }, null, 8, ["src"])) : vue.createCommentVNode("v-if", true)
       ]),
       vue.createCommentVNode(" Stats "),
       vue.createElementVNode("view", { class: "card-stats" }, [
@@ -244,7 +265,7 @@ if (uni.restoreGlobal) {
         vue.createElementVNode(
           "text",
           {
-            onClick: _cache[2] || (_cache[2] = (...args) => $options.toggleComments && $options.toggleComments(...args)),
+            onClick: _cache[3] || (_cache[3] = (...args) => $options.toggleComments && $options.toggleComments(...args)),
             class: "comments-count"
           },
           vue.toDisplayString($props.post.comments.length) + " comments",
@@ -254,29 +275,24 @@ if (uni.restoreGlobal) {
       ]),
       vue.createCommentVNode(" Actions "),
       vue.createElementVNode("view", { class: "card-actions" }, [
-        vue.createCommentVNode(` 	<text @click="toggleLike" class="action-btn" :class="{ liked: isLiked }">
-	  <text :style="{ color: isLiked ? '#e0245e' : '#65676b' }">
-		{{ isLiked ? '❤️' : '♡' }}
-	  </text> {{ isLiked ? 'Liked' : 'Like' }}
-	</text> `),
         vue.createElementVNode(
           "text",
           {
-            onClick: _cache[3] || (_cache[3] = (...args) => $options.toggleLike && $options.toggleLike(...args)),
+            onClick: _cache[4] || (_cache[4] = (...args) => $options.toggleLike && $options.toggleLike(...args)),
             class: vue.normalizeClass(["action-btn", { liked: $data.isLiked }])
           },
           [
             vue.createElementVNode(
               "text",
               {
-                style: vue.normalizeStyle({ color: $data.isLiked ? "#65676b" : "#65676b" })
+                style: vue.normalizeStyle({ color: $data.isLiked ? "#e0245e" : "#65676b" })
               },
-              vue.toDisplayString($data.isLiked ? "♡" : "♡"),
+              vue.toDisplayString($data.isLiked ? "❤️" : "♡"),
               5
               /* TEXT, STYLE */
             ),
             vue.createTextVNode(
-              " " + vue.toDisplayString($data.isLiked ? "Like" : "Like"),
+              " " + vue.toDisplayString($data.isLiked ? "Liked" : "Like"),
               1
               /* TEXT */
             )
@@ -285,7 +301,7 @@ if (uni.restoreGlobal) {
           /* CLASS */
         ),
         vue.createElementVNode("text", {
-          onClick: _cache[4] || (_cache[4] = (...args) => $options.toggleComments && $options.toggleComments(...args)),
+          onClick: _cache[5] || (_cache[5] = (...args) => $options.toggleComments && $options.toggleComments(...args)),
           class: "action-btn"
         }, [
           vue.createElementVNode("text", null, "💬"),
@@ -434,9 +450,9 @@ if (uni.restoreGlobal) {
           vue.withDirectives(vue.createElementVNode(
             "input",
             {
-              "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => $data.newComment = $event),
+              "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => $data.newComment = $event),
               placeholder: "Write a comment...",
-              onKeyup: _cache[6] || (_cache[6] = vue.withKeys((...args) => $options.addComment && $options.addComment(...args), ["enter"]))
+              onKeyup: _cache[7] || (_cache[7] = vue.withKeys((...args) => $options.addComment && $options.addComment(...args), ["enter"]))
             },
             null,
             544
@@ -445,15 +461,15 @@ if (uni.restoreGlobal) {
             [vue.vModelText, $data.newComment]
           ]),
           vue.createElementVNode("text", {
-            onClick: _cache[7] || (_cache[7] = (...args) => $options.addComment && $options.addComment(...args)),
+            onClick: _cache[8] || (_cache[8] = (...args) => $options.addComment && $options.addComment(...args)),
             class: "send-comment-btn"
           }, "Send")
         ])
       ])) : vue.createCommentVNode("v-if", true)
     ]);
   }
-  const PostCard = /* @__PURE__ */ _export_sfc(_sfc_main$7, [["render", _sfc_render$6], ["__scopeId", "data-v-8e0ecb97"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/components/PostCard.vue"]]);
-  const _sfc_main$6 = {
+  const PostCard = /* @__PURE__ */ _export_sfc(_sfc_main$8, [["render", _sfc_render$7], ["__scopeId", "data-v-8e0ecb97"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/components/PostCard.vue"]]);
+  const _sfc_main$7 = {
     components: { PostCard },
     data() {
       return {
@@ -461,7 +477,14 @@ if (uni.restoreGlobal) {
         newPostContent: "",
         showPostButton: false,
         posts: [],
-        loading: false
+        visiblePosts: [],
+        loading: false,
+        imagePreview: null,
+        tempFilePath: null,
+        isRefreshing: false,
+        postsPerPage: 8,
+        currentPage: 1,
+        hasMorePosts: false
       };
     },
     async onLoad() {
@@ -488,7 +511,6 @@ if (uni.restoreGlobal) {
     },
     methods: {
       getInitials(username) {
-        formatAppLog("log", "at pages/index/index.vue:91", "usertest", username);
         if (!username)
           return "UU";
         const parts = username.split(" ");
@@ -506,15 +528,17 @@ if (uni.restoreGlobal) {
         this.loading = true;
         try {
           const res = await uni.request({
-            url: "https://worker-post-backend.onrender.com/api/posts",
+            url: "http://192.168.16.32:3000/api/posts",
             header: {
               "x-auth-token": uni.getStorageSync("token")
             }
           });
           this.posts = res.data || this.getMockPosts();
+          this.updateVisiblePosts();
         } catch (error) {
-          formatAppLog("error", "at pages/index/index.vue:117", "Fetch posts error:", error);
+          formatAppLog("error", "at pages/index/index.vue:162", "Fetch posts error:", error);
           this.posts = this.getMockPosts();
+          this.updateVisiblePosts();
           uni.showToast({
             title: "Using mock data",
             icon: "none"
@@ -531,47 +555,116 @@ if (uni.restoreGlobal) {
             userId: "demo-123",
             avatar: "/static/avatar.png",
             timestamp: "Just now",
-            content: "This is sample post",
+            content: "This is a sample post",
             likes: [],
             comments: []
           }
         ];
       },
-      async addPost() {
-        var _a, _b, _c;
-        if (!this.newPostContent.trim())
+      updateVisiblePosts() {
+        const endIndex = this.currentPage * this.postsPerPage;
+        this.visiblePosts = this.posts.slice(0, endIndex);
+        this.hasMorePosts = endIndex < this.posts.length;
+      },
+      onRefresh() {
+        this.isRefreshing = true;
+        setTimeout(() => {
+          this.currentPage = 1;
+          this.fetchPosts().finally(() => {
+            this.isRefreshing = false;
+          });
+        }, 1e3);
+      },
+      loadMorePosts() {
+        if (!this.hasMorePosts || this.isRefreshing)
           return;
-        try {
-          const res = await uni.request({
-            url: "https://worker-post-backend.onrender.com/api/posts",
-            method: "POST",
-            header: {
-              "x-auth-token": uni.getStorageSync("token"),
-              "Content-Type": "application/json"
-            },
-            data: {
+        this.currentPage++;
+        this.updateVisiblePosts();
+      },
+      chooseImage() {
+        uni.chooseImage({
+          count: 1,
+          sizeType: ["compressed"],
+          sourceType: ["album", "camera"],
+          success: (res) => {
+            this.tempFilePath = res.tempFilePaths[0];
+            this.imagePreview = this.tempFilePath;
+          },
+          fail: (err) => {
+            formatAppLog("error", "at pages/index/index.vue:221", "Image selection failed:", err);
+            uni.showToast({
+              title: "Failed to select image",
+              icon: "none"
+            });
+          }
+        });
+      },
+      removeImage() {
+        this.imagePreview = null;
+        this.tempFilePath = null;
+      },
+      async uploadImageAndPost() {
+        const token = uni.getStorageSync("token");
+        return new Promise((resolve, reject) => {
+          uni.uploadFile({
+            url: "http://192.168.16.32:3000/api/posts",
+            filePath: this.tempFilePath,
+            name: "image",
+            formData: {
               content: this.newPostContent
+            },
+            header: {
+              "x-auth-token": token
+            },
+            success: (uploadRes) => {
+              try {
+                const data = JSON.parse(uploadRes.data);
+                resolve(data);
+              } catch (e) {
+                reject(new Error("Invalid response from server"));
+              }
+            },
+            fail: (err) => {
+              formatAppLog("error", "at pages/index/index.vue:257", "Upload failed:", err);
+              reject(err);
             }
           });
-          const newPost = (res == null ? void 0 : res.data) || {
-            _id: "mock-" + Date.now(),
-            username: ((_a = this.currentUser) == null ? void 0 : _a.username) || "Unknown User",
-            userId: ((_b = this.currentUser) == null ? void 0 : _b.userId) || "unknown",
-            avatar: ((_c = this.currentUser) == null ? void 0 : _c.avatar) || "/static/default-avatar.png",
-            timestamp: "Just now",
-            content: this.newPostContent,
-            likes: [],
-            comments: []
-          };
+        });
+      },
+      async addPost() {
+        if (!this.newPostContent.trim() && !this.tempFilePath)
+          return;
+        let newPost = null;
+        try {
+          if (this.tempFilePath) {
+            newPost = await this.uploadImageAndPost();
+          } else {
+            const res = await uni.request({
+              url: "http://192.168.16.32:3000/api/posts",
+              method: "POST",
+              header: {
+                "x-auth-token": uni.getStorageSync("token"),
+                "Content-Type": "application/json"
+              },
+              data: {
+                content: this.newPostContent
+              }
+            });
+            newPost = res.data;
+          }
           this.posts.unshift(newPost);
           this.newPostContent = "";
           this.showPostButton = false;
+          this.imagePreview = null;
+          this.tempFilePath = null;
+          this.currentPage = 1;
+          this.updateVisiblePosts();
           uni.showToast({
             title: "Posted successfully",
             icon: "success"
           });
         } catch (error) {
-          formatAppLog("error", "at pages/index/index.vue:179", "Create post error:", error);
+          formatAppLog("error", "at pages/index/index.vue:300", "Post failed:", error);
           uni.showToast({
             title: "Failed to post",
             icon: "none"
@@ -581,73 +674,56 @@ if (uni.restoreGlobal) {
       async handleLike(postId) {
         try {
           const post = this.posts.find((p) => p._id === postId);
-          if (!post) {
-            formatAppLog("error", "at pages/index/index.vue:191", "Post not found:", postId);
+          if (!post)
             return;
-          }
-          const hasLiked = post.likes.includes(this.currentUser.userId);
-          const method = hasLiked ? "DELETE" : "POST";
           const res = await uni.request({
-            url: `https://worker-post-backend.onrender.com/api/posts/${postId}/like`,
+            url: `http://192.168.16.32:3000/api/posts/${postId}/like`,
             method: "PUT",
             header: {
-              "x-auth-token": uni.getStorageSync("token"),
-              "Content-Type": "application/json"
+              "x-auth-token": uni.getStorageSync("token")
             }
           });
-          if (!res || res.statusCode !== 200) {
+          if (res.statusCode === 200) {
+            const updatedPost = res.data;
+            const index = this.posts.findIndex((p) => p._id === postId);
+            if (index !== -1) {
+              this.posts.splice(index, 1, updatedPost);
+            }
+          } else {
             throw new Error("Failed to update like");
           }
-          const updatedPost = res.data;
-          const index = this.posts.findIndex((p) => p._id === postId);
-          if (index !== -1) {
-            this.posts.splice(index, 1, updatedPost);
-          }
-          uni.showToast({
-            title: hasLiked ? "Unliked" : "Liked",
-            icon: "success"
-          });
         } catch (error) {
-          formatAppLog("error", "at pages/index/index.vue:223", "Like failed:", error);
+          formatAppLog("error", "at pages/index/index.vue:331", "Like error:", error);
           uni.showToast({
-            title: error.message || "Failed to update like",
+            title: "Like failed",
             icon: "none"
           });
         }
       },
       async handleAddComment({ postId, commentText }) {
-        var _a, _b;
         const post = this.posts.find((p) => p._id === postId);
         if (!post)
           return;
         try {
           const res = await uni.request({
-            url: `https://worker-post-backend.onrender.com/api/posts/${postId}/comments`,
+            url: `http://192.168.16.32:3000/api/posts/${postId}/comments`,
             method: "POST",
             header: {
               "x-auth-token": uni.getStorageSync("token"),
               "Content-Type": "application/json"
             },
-            data: {
-              text: commentText
-            }
+            data: { text: commentText }
           });
-          const comment = res.data || {
-            _id: `comment-${Date.now()}`,
-            user: ((_a = this.currentUser) == null ? void 0 : _a.username) || "Anonymous",
-            userId: ((_b = this.currentUser) == null ? void 0 : _b.userId) || "unknown",
-            text: commentText,
-            timestamp: "Just now",
-            replies: []
-          };
-          post.comments.unshift(comment);
+          post.comments.unshift(res.data);
         } catch (error) {
-          formatAppLog("error", "at pages/index/index.vue:259", "Add comment failed:", error);
-          uni.showToast({ title: "Failed to add comment", icon: "none" });
+          formatAppLog("error", "at pages/index/index.vue:356", "Comment failed:", error);
+          uni.showToast({
+            title: "Failed to add comment",
+            icon: "none"
+          });
         }
       },
       async handleAddReply({ postId, commentId, replyText }) {
-        var _a, _b;
         const post = this.posts.find((p) => p._id === postId);
         if (!post)
           return;
@@ -656,47 +732,38 @@ if (uni.restoreGlobal) {
           return;
         try {
           const res = await uni.request({
-            url: `https://worker-post-backend.onrender.com/api/posts/${postId}/comments/${commentId}/replies`,
+            url: `http://192.168.16.32:3000/api/posts/${postId}/comments/${commentId}/replies`,
             method: "POST",
             header: {
               "x-auth-token": uni.getStorageSync("token"),
               "Content-Type": "application/json"
             },
-            data: {
-              text: replyText
-            }
+            data: { text: replyText }
           });
-          const newReply = res.data || {
-            _id: `reply-${Date.now()}`,
-            user: ((_a = this.currentUser) == null ? void 0 : _a.username) || "Anonymous",
-            userId: ((_b = this.currentUser) == null ? void 0 : _b.userId) || "unknown",
-            text: replyText,
-            timestamp: "Just now"
-          };
-          comment.replies.push(newReply);
-          uni.showToast({
-            title: "Reply added",
-            icon: "success"
-          });
+          comment.replies.push(res.data);
         } catch (error) {
-          formatAppLog("error", "at pages/index/index.vue:300", "Add reply failed:", error);
-          uni.showToast({ title: "Failed to add reply", icon: "none" });
+          formatAppLog("error", "at pages/index/index.vue:383", "Reply error:", error);
+          uni.showToast({
+            title: "Failed to reply",
+            icon: "none"
+          });
         }
       },
       handleDeletePost(postId) {
         uni.showModal({
           title: "Delete Post",
-          content: "Are you sure?",
+          content: "Are you sure you want to delete this post?",
           success: (res) => {
             if (res.confirm) {
-              this.posts = this.posts.filter((post) => post._id !== postId);
+              this.posts = this.posts.filter((p) => p._id !== postId);
+              this.updateVisiblePosts();
             }
           }
         });
       }
     }
   };
-  function _sfc_render$5(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$6(_ctx, _cache, $props, $setup, $data, $options) {
     var _a;
     const _component_PostCard = vue.resolveComponent("PostCard");
     return vue.openBlock(), vue.createElementBlock("view", { class: "container" }, [
@@ -717,53 +784,106 @@ if (uni.restoreGlobal) {
             /* TEXT */
           ))
         ]),
-        vue.withDirectives(vue.createElementVNode(
-          "input",
-          {
-            "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => $data.newPostContent = $event),
-            placeholder: "What's on your mind?",
-            onFocus: _cache[1] || (_cache[1] = ($event) => $data.showPostButton = true)
-          },
-          null,
-          544
-          /* NEED_HYDRATION, NEED_PATCH */
-        ), [
-          [vue.vModelText, $data.newPostContent]
-        ]),
-        $data.showPostButton ? (vue.openBlock(), vue.createElementBlock("button", {
-          key: 0,
-          onClick: _cache[2] || (_cache[2] = (...args) => $options.addPost && $options.addPost(...args)),
-          class: "post-button",
-          disabled: !$data.newPostContent.trim()
-        }, " Post ", 8, ["disabled"])) : vue.createCommentVNode("v-if", true)
+        vue.createElementVNode("view", { style: { "width": "100%" } }, [
+          vue.withDirectives(vue.createElementVNode(
+            "input",
+            {
+              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => $data.newPostContent = $event),
+              placeholder: "What's on your mind?",
+              onFocus: _cache[1] || (_cache[1] = ($event) => $data.showPostButton = true),
+              class: "post-input"
+            },
+            null,
+            544
+            /* NEED_HYDRATION, NEED_PATCH */
+          ), [
+            [vue.vModelText, $data.newPostContent]
+          ]),
+          $data.showPostButton ? (vue.openBlock(), vue.createElementBlock("view", {
+            key: 0,
+            class: "post-actions"
+          }, [
+            vue.createElementVNode("view", { class: "file-upload-wrapper" }, [
+              vue.createElementVNode("button", {
+                class: "upload-button modern",
+                onClick: _cache[2] || (_cache[2] = (...args) => $options.chooseImage && $options.chooseImage(...args))
+              }, [
+                vue.createCommentVNode(' <uni-icons type="camera-filled" size="16" color="#1877f2" /> '),
+                vue.createElementVNode("text", null, "Add Photo")
+              ]),
+              $data.imagePreview ? (vue.openBlock(), vue.createElementBlock("image", {
+                key: 0,
+                src: $data.imagePreview,
+                class: "image-preview",
+                mode: "aspectFit"
+              }, null, 8, ["src"])) : vue.createCommentVNode("v-if", true),
+              $data.imagePreview ? (vue.openBlock(), vue.createElementBlock("button", {
+                key: 1,
+                onClick: _cache[3] || (_cache[3] = (...args) => $options.removeImage && $options.removeImage(...args)),
+                class: "remove-image-button"
+              }, " × ")) : vue.createCommentVNode("v-if", true)
+            ]),
+            vue.createElementVNode("button", {
+              class: "post-button",
+              onClick: _cache[4] || (_cache[4] = (...args) => $options.addPost && $options.addPost(...args)),
+              disabled: !$data.newPostContent.trim() && !$data.imagePreview
+            }, " Post ", 8, ["disabled"])
+          ])) : vue.createCommentVNode("v-if", true)
+        ])
       ]),
-      $data.loading ? (vue.openBlock(), vue.createElementBlock("view", {
-        key: 0,
-        class: "loading"
+      vue.createElementVNode("scroll-view", {
+        "scroll-y": "",
+        class: "post-list",
+        "refresher-enabled": "",
+        "refresher-triggered": $data.isRefreshing,
+        onRefresherrefresh: _cache[5] || (_cache[5] = (...args) => $options.onRefresh && $options.onRefresh(...args)),
+        onScrolltolower: _cache[6] || (_cache[6] = (...args) => $options.loadMorePosts && $options.loadMorePosts(...args))
       }, [
-        vue.createElementVNode("text", null, "Loading posts...")
-      ])) : vue.createCommentVNode("v-if", true),
-      (vue.openBlock(true), vue.createElementBlock(
-        vue.Fragment,
-        null,
-        vue.renderList($data.posts, (post, index) => {
-          return vue.openBlock(), vue.createBlock(_component_PostCard, {
-            key: post._id || index,
-            post,
-            "current-user": $data.currentUser,
-            onLikePost: $options.handleLike,
-            onAddComment: $options.handleAddComment,
-            onAddReply: $options.handleAddReply,
-            onDeletePost: $options.handleDeletePost
-          }, null, 8, ["post", "current-user", "onLikePost", "onAddComment", "onAddReply", "onDeletePost"]);
-        }),
-        128
-        /* KEYED_FRAGMENT */
-      ))
+        $data.isRefreshing ? (vue.openBlock(), vue.createElementBlock("view", {
+          key: 0,
+          class: "refresh-indicator"
+        }, [
+          vue.createElementVNode("text", null, "Loading...")
+        ])) : vue.createCommentVNode("v-if", true),
+        $data.loading && $data.visiblePosts.length === 0 ? (vue.openBlock(), vue.createElementBlock("view", {
+          key: 1,
+          class: "loading"
+        }, [
+          vue.createElementVNode("text", null, "Loading posts...")
+        ])) : $data.visiblePosts.length === 0 ? (vue.openBlock(), vue.createElementBlock("view", {
+          key: 2,
+          class: "no-posts"
+        }, [
+          vue.createElementVNode("text", null, "No posts yet. Be the first to post!")
+        ])) : vue.createCommentVNode("v-if", true),
+        (vue.openBlock(true), vue.createElementBlock(
+          vue.Fragment,
+          null,
+          vue.renderList($data.visiblePosts, (post, index) => {
+            return vue.openBlock(), vue.createBlock(_component_PostCard, {
+              key: post._id || index,
+              post,
+              "current-user": $data.currentUser,
+              onLikePost: $options.handleLike,
+              onAddComment: $options.handleAddComment,
+              onAddReply: $options.handleAddReply,
+              onDeletePost: $options.handleDeletePost
+            }, null, 8, ["post", "current-user", "onLikePost", "onAddComment", "onAddReply", "onDeletePost"]);
+          }),
+          128
+          /* KEYED_FRAGMENT */
+        )),
+        $data.hasMorePosts ? (vue.openBlock(), vue.createElementBlock("view", {
+          key: 3,
+          class: "load-more-hint"
+        }, [
+          vue.createElementVNode("text", null, "Pull up to load more posts")
+        ])) : vue.createCommentVNode("v-if", true)
+      ], 40, ["refresher-triggered"])
     ]);
   }
-  const PagesIndexIndex = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["render", _sfc_render$5], ["__scopeId", "data-v-1cf27b2a"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/index/index.vue"]]);
-  const _sfc_main$5 = {
+  const PagesIndexIndex = /* @__PURE__ */ _export_sfc(_sfc_main$7, [["render", _sfc_render$6], ["__scopeId", "data-v-1cf27b2a"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/index/index.vue"]]);
+  const _sfc_main$6 = {
     data() {
       return {
         email: "",
@@ -839,7 +959,7 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render$4(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$5(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "login-container" }, [
       vue.createElementVNode("view", { class: "login-card" }, [
         vue.createElementVNode("text", { class: "title" }, "Welcome Back"),
@@ -887,8 +1007,8 @@ if (uni.restoreGlobal) {
       ])
     ]);
   }
-  const PagesAuthLogin = /* @__PURE__ */ _export_sfc(_sfc_main$5, [["render", _sfc_render$4], ["__scopeId", "data-v-2cc9f8c3"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/auth/login.vue"]]);
-  const _sfc_main$4 = {
+  const PagesAuthLogin = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["render", _sfc_render$5], ["__scopeId", "data-v-2cc9f8c3"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/auth/login.vue"]]);
+  const _sfc_main$5 = {
     data() {
       return {
         username: "",
@@ -937,7 +1057,7 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render$3(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$4(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "register-container" }, [
       vue.createElementVNode("view", { class: "register-card" }, [
         vue.createElementVNode("text", { class: "title" }, "Create Account"),
@@ -1000,8 +1120,8 @@ if (uni.restoreGlobal) {
       ])
     ]);
   }
-  const PagesAuthRegister = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["render", _sfc_render$3], ["__scopeId", "data-v-4bb68961"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/auth/register.vue"]]);
-  const _sfc_main$3 = {
+  const PagesAuthRegister = /* @__PURE__ */ _export_sfc(_sfc_main$5, [["render", _sfc_render$4], ["__scopeId", "data-v-4bb68961"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/auth/register.vue"]]);
+  const _sfc_main$4 = {
     data() {
       return {
         currentUser: {},
@@ -1069,7 +1189,7 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render$2(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$3(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "profile-container" }, [
       vue.createCommentVNode(" Profile Header "),
       vue.createElementVNode("view", { class: "profile-header" }, [
@@ -1143,8 +1263,8 @@ if (uni.restoreGlobal) {
       ])
     ]);
   }
-  const PagesProfileProfile = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["render", _sfc_render$2], ["__scopeId", "data-v-dd383ca2"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/profile/profile.vue"]]);
-  const _sfc_main$2 = {
+  const PagesProfileProfile = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["render", _sfc_render$3], ["__scopeId", "data-v-dd383ca2"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/profile/profile.vue"]]);
+  const _sfc_main$3 = {
     methods: {
       navigateToEditProfile() {
         uni.navigateTo({ url: "/pages/profile/edit" });
@@ -1170,7 +1290,7 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render$1(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$2(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "settings-container" }, [
       vue.createElementVNode("view", { class: "settings-header" }, [
         vue.createElementVNode("text", { class: "settings-title" }, "Settings")
@@ -1207,8 +1327,8 @@ if (uni.restoreGlobal) {
       ])
     ]);
   }
-  const PagesProfileSettings = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["render", _sfc_render$1], ["__scopeId", "data-v-eeefe5cd"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/profile/settings.vue"]]);
-  const _sfc_main$1 = {
+  const PagesProfileSettings = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["render", _sfc_render$2], ["__scopeId", "data-v-eeefe5cd"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/profile/settings.vue"]]);
+  const _sfc_main$2 = {
     data() {
       return {
         userID: "",
@@ -1401,7 +1521,7 @@ if (uni.restoreGlobal) {
       }
     }
   };
-  function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+  function _sfc_render$1(_ctx, _cache, $props, $setup, $data, $options) {
     return vue.openBlock(), vue.createElementBlock("view", { class: "container" }, [
       vue.createElementVNode("view", { class: "header" }, [
         vue.withDirectives(vue.createElementVNode(
@@ -1577,13 +1697,188 @@ if (uni.restoreGlobal) {
       ])
     ]);
   }
-  const PagesComponentsWorkerTodo = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["render", _sfc_render], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/components/worker_todo.vue"]]);
+  const PagesComponentsWorkerTodo = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["render", _sfc_render$1], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/components/worker_todo.vue"]]);
+  const _sfc_main$1 = {
+    data() {
+      return {
+        lang: "en",
+        isDark: false,
+        searchQuery: "",
+        user: {
+          name: "John Doe",
+          avatar: "/static/avatar.png"
+        },
+        tools: [
+          {
+            title: "Projects",
+            path: "/pages/projects/index",
+            icon: "/static/projects.png",
+            unreadCount: 0
+          },
+          {
+            title: "Tasks",
+            path: "/pages/tasks/index",
+            icon: "/static/tasks.png",
+            unreadCount: 3
+          },
+          {
+            title: "Team",
+            path: "/pages/team/index",
+            icon: "/static/team.png",
+            unreadCount: 0
+          },
+          {
+            title: "Calendar",
+            path: "/pages/calendar/index",
+            icon: "/static/calendar.png",
+            unreadCount: 2
+          }
+        ],
+        translations: {
+          en: {
+            welcome: "Welcome",
+            workspace: "My Workspace",
+            search: "Search tools..."
+          },
+          mm: {
+            welcome: "ကြိုဆိုပါတယ်",
+            workspace: "ကျွန်ုပ်၏အလုပ်ခန်းမ",
+            search: "ကိရိယာများကိုရှာဖွေပါ..."
+          }
+        }
+      };
+    },
+    computed: {
+      filteredTools() {
+        return this.tools.filter(
+          (tool) => tool.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      }
+    },
+    methods: {
+      t(key) {
+        return this.translations[this.lang][key] || key;
+      },
+      toggleLang() {
+        this.lang = this.lang === "en" ? "mm" : "en";
+      },
+      toggleDark(e) {
+        this.isDark = e.detail.value;
+      },
+      goTo(path) {
+        uni.navigateTo({ url: path });
+      }
+    }
+  };
+  function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+    return vue.openBlock(), vue.createElementBlock(
+      "view",
+      {
+        class: vue.normalizeClass(["workspace", $data.isDark ? "dark" : ""])
+      },
+      [
+        vue.createCommentVNode(" User Info "),
+        vue.createElementVNode("view", { class: "user-info" }, [
+          vue.createElementVNode("image", {
+            class: "avatar",
+            src: $data.user.avatar
+          }, null, 8, ["src"]),
+          vue.createElementVNode(
+            "text",
+            { class: "greeting" },
+            vue.toDisplayString($options.t("welcome")) + ", " + vue.toDisplayString($data.user.name),
+            1
+            /* TEXT */
+          )
+        ]),
+        vue.createCommentVNode(" Header "),
+        vue.createElementVNode("view", { class: "header" }, [
+          vue.createElementVNode(
+            "text",
+            { class: "title" },
+            vue.toDisplayString($options.t("workspace")),
+            1
+            /* TEXT */
+          )
+        ]),
+        vue.createCommentVNode(" Language & Theme Toggles "),
+        vue.createElementVNode("view", { class: "toggles" }, [
+          vue.createElementVNode(
+            "button",
+            {
+              size: "mini",
+              onClick: _cache[0] || (_cache[0] = (...args) => $options.toggleLang && $options.toggleLang(...args))
+            },
+            vue.toDisplayString($data.lang === "en" ? "မြန်မာ" : "English"),
+            1
+            /* TEXT */
+          ),
+          vue.createElementVNode("switch", {
+            onChange: _cache[1] || (_cache[1] = (...args) => $options.toggleDark && $options.toggleDark(...args)),
+            checked: $data.isDark
+          }, null, 40, ["checked"])
+        ]),
+        vue.createCommentVNode(" Search Bar "),
+        vue.withDirectives(vue.createElementVNode("input", {
+          class: "search-input",
+          "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => $data.searchQuery = $event),
+          placeholder: $options.t("search")
+        }, null, 8, ["placeholder"]), [
+          [vue.vModelText, $data.searchQuery]
+        ]),
+        vue.createCommentVNode(" Tool Grid "),
+        vue.createElementVNode("view", { class: "grid" }, [
+          (vue.openBlock(true), vue.createElementBlock(
+            vue.Fragment,
+            null,
+            vue.renderList($options.filteredTools, (item) => {
+              return vue.openBlock(), vue.createElementBlock("view", {
+                class: "card",
+                key: item.title,
+                onClick: ($event) => $options.goTo(item.path)
+              }, [
+                vue.createElementVNode("view", { class: "card-icon-wrap" }, [
+                  vue.createElementVNode("image", {
+                    class: "card-icon",
+                    src: item.icon
+                  }, null, 8, ["src"]),
+                  item.unreadCount > 0 ? (vue.openBlock(), vue.createElementBlock(
+                    "view",
+                    {
+                      key: 0,
+                      class: "badge"
+                    },
+                    vue.toDisplayString(item.unreadCount),
+                    1
+                    /* TEXT */
+                  )) : vue.createCommentVNode("v-if", true)
+                ]),
+                vue.createElementVNode(
+                  "text",
+                  { class: "card-title" },
+                  vue.toDisplayString(item.title),
+                  1
+                  /* TEXT */
+                )
+              ], 8, ["onClick"]);
+            }),
+            128
+            /* KEYED_FRAGMENT */
+          ))
+        ])
+      ],
+      2
+      /* CLASS */
+    );
+  }
+  const PagesComponentsWorkSpaces = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["render", _sfc_render], ["__scopeId", "data-v-2ca3703e"], ["__file", "C:/Users/shwethe/Desktop/Hbuilder/worker_post/pages/components/workSpaces.vue"]]);
   __definePage("pages/index/index", PagesIndexIndex);
   __definePage("pages/auth/login", PagesAuthLogin);
   __definePage("pages/auth/register", PagesAuthRegister);
   __definePage("pages/profile/profile", PagesProfileProfile);
   __definePage("pages/profile/settings", PagesProfileSettings);
   __definePage("pages/components/worker_todo", PagesComponentsWorkerTodo);
+  __definePage("pages/components/workSpaces", PagesComponentsWorkSpaces);
   const _sfc_main = {
     onLaunch: function() {
       formatAppLog("log", "at App.vue:4", "App Launch");

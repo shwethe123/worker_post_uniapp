@@ -1,0 +1,95 @@
+
+.workspace[data-v-2ca3703e] {
+  padding: 0.625rem;
+  background-color: #ffffff;
+  min-height: 100vh;
+  color: #000000;
+}
+.workspace.dark[data-v-2ca3703e] {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+}
+.user-info[data-v-2ca3703e] {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.625rem;
+}
+.avatar[data-v-2ca3703e] {
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 50%;
+  margin-right: 0.625rem;
+}
+.greeting[data-v-2ca3703e] {
+  font-size: 1rem;
+}
+.header[data-v-2ca3703e] {
+  padding: 0.625rem 0;
+  text-align: center;
+}
+.title[data-v-2ca3703e] {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+.toggles[data-v-2ca3703e] {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.625rem;
+}
+.search-input[data-v-2ca3703e] {
+  padding: 0.625rem;
+  border: 0.03125rem solid #ccc;
+  border-radius: 0.3125rem;
+  font-size: 0.875rem;
+  margin-bottom: 0.625rem;
+  background-color: #ffffff;
+}
+.workspace.dark .search-input[data-v-2ca3703e] {
+  background-color: #333333;
+  color: white;
+  border-color: #555;
+}
+.grid[data-v-2ca3703e] {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.card[data-v-2ca3703e] {
+  width: 48%;
+  background-color: #f5f5f5;
+  margin-bottom: 0.625rem;
+  padding: 0.9375rem 0;
+  border-radius: 0.625rem;
+  text-align: center;
+  box-shadow: 0 0.15625rem 0.3125rem rgba(0, 0, 0, 0.05);
+  position: relative;
+  transition: transform 0.2s;
+}
+.workspace.dark .card[data-v-2ca3703e] {
+  background-color: #2c2c2c;
+}
+.card[data-v-2ca3703e]:active {
+  transform: scale(0.96);
+}
+.card-icon-wrap[data-v-2ca3703e] {
+  position: relative;
+}
+.card-icon[data-v-2ca3703e] {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: 0.3125rem;
+}
+.badge[data-v-2ca3703e] {
+  position: absolute;
+  top: -0.15625rem;
+  right: -0.15625rem;
+  background: red;
+  color: white;
+  border-radius: 0.625rem;
+  padding: 0.125rem 0.3125rem;
+  font-size: 0.625rem;
+}
+.card-title[data-v-2ca3703e] {
+  font-size: 0.875rem;
+}

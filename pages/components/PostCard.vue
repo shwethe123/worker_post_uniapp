@@ -31,32 +31,35 @@
     </view>
 
     <!-- Content -->
-    <view class="card-body">
-      <text class="content">{{ post.content }}</text>
-    </view>
+	<view class="card-body">
+	  <text class="content">{{ post.content }}</text>
 
+		<image
+		  v-if="post.image"
+		  :src="post.image"
+		  class="post-image"
+		  mode="widthFix"
+		  @tap="previewImage"
+		/>
+
+	</view>
     <!-- Stats -->
     <view class="card-stats">
-      <text class="likes-count">{{ post.likes.length }} likes</text>
+       <text class="likes-count">{{ post.likes.length }} likes</text>
       <text @click="toggleComments" class="comments-count">{{ post.comments.length }} comments</text>
     </view>
 
     <!-- Actions -->
-    <view class="card-actions">
-<!-- 	<text @click="toggleLike" class="action-btn" :class="{ liked: isLiked }">
-	  <text :style="{ color: isLiked ? '#e0245e' : '#65676b' }">
-		{{ isLiked ? '❤️' : '♡' }}
-	  </text> {{ isLiked ? 'Liked' : 'Like' }}
-	</text> -->
-	<text @click="toggleLike" class="action-btn" :class="{ liked: isLiked }">
-	  <text :style="{ color: isLiked ? '#65676b' : '#65676b' }">
-		{{ isLiked ? '♡' : '♡' }}
-	  </text> {{ isLiked ? 'Like' : 'Like' }}
-	</text>
-      <text @click="toggleComments" class="action-btn">
-        <text>💬</text> Comment
-      </text>
-    </view>
+  <view class="card-actions">
+    <text @click="toggleLike" class="action-btn" :class="{ liked: isLiked }">
+      <text :style="{ color: isLiked ? '#e0245e' : '#65676b' }">
+        {{ isLiked ? '❤️' : '♡' }}
+      </text> {{ isLiked ? 'Liked' : 'Like' }}
+    </text>
+    <text @click="toggleComments" class="action-btn">
+      <text>💬</text> Comment
+    </text>
+  </view>
 
     <!-- Comments -->
     <view v-if="commentsVisible" class="comment-section">
@@ -150,21 +153,28 @@ export default {
         this.isLiked = this.post.likes?.some(u => u._id === this.currentUser.userId);
       }
     } catch (e) {
-      console.error('Storage error:', e);
       this.isLiked = this.post.likes?.some(u => u._id === this.currentUser.userId);
     }
   },
   methods: {
-    toggleLike() {
-      this.isLiked = !this.isLiked;
-      const likeKey = `like_${this.post._id}_${this.currentUser.userId}`;
-      try {
-        uni.setStorageSync(likeKey, this.isLiked);
-      } catch (e) {
-        console.error('Failed to save like state:', e);
-      }
-      this.$emit('like-post', this.post._id, this.isLiked);
-    },
+	toggleLike() {
+	  this.isLiked = !this.isLiked;
+	  const likeKey = `like_${this.post._id}_${this.currentUser.userId}`;
+	  try {
+		uni.setStorageSync(likeKey, this.isLiked);
+	  } catch (e) {
+		console.error('Failed to save like state:', e);
+	  }
+
+	  // Update likes array
+	  if (this.isLiked) {
+		this.post.likes.push({ _id: this.currentUser.userId });
+	  } else {
+		this.post.likes = this.post.likes.filter(u => u._id !== this.currentUser.userId);
+	  }
+
+	  this.$emit('like-post', this.post._id, this.isLiked);
+	},
     toggleComments() {
       this.commentsVisible = !this.commentsVisible;
     },
@@ -238,7 +248,15 @@ export default {
       if (days === 1) return 'Yesterday';
       if (days < 7) return `${days} days ago`;
       return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
-    }
+    },
+	
+	  previewImage() {
+	    if (!this.post.image) return;
+	    uni.previewImage({
+	      current: this.post.image, // current image URL
+	      urls: [this.post.image]   // array of images to preview
+	    });
+	  },
   }
 }
 </script>
@@ -271,7 +289,7 @@ export default {
 }
 
 .username {
-  font-weight: 600;
+  font-weight: 900;
   font-size: 15px;
   display: block;
 }
@@ -569,5 +587,11 @@ export default {
   font-weight: bold;
   font-size: 10px;
 }
-
+.post-image {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 8px;
+  max-height: 200px;
+  object-fit: cover;
+}
 </style>
