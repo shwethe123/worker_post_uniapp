@@ -1,33 +1,72 @@
-// Create api.js in utils folder
-const BASE_URL = 'http://localhost:3000/api'
+// API/api.js
+import { ref } from 'vue';
 
-export default {
-  async request(options) {
-    const token = uni.getStorageSync('token')
-    const [err, res] = await uni.request({
-      url: BASE_URL + options.url,
-      method: options.method || 'GET',
-      data: options.data,
+// For loading data
+export const worker_leave = () => {
+  const worker_data = ref([]);
+  const error = ref('');
+
+  const load = async () => {
+    try {
+      const res = await new Promise((resolve, reject) => {
+        uni.request({
+          url: 'http://192.168.16.32:3000/api/posts',
+          method: 'GET',
+          header: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer your_token_here`  // Add the Bearer token here
+          },
+          success(res) {
+            resolve(res);
+          },
+          fail(error) {
+            reject(error);
+          }
+        });
+      });
+
+      if (res.statusCode === 200) {
+        worker_data.value = res.data;
+      } else {
+        error.value = `Error: ${res.statusCode}`;
+        console.log("Fetch API Failed", res.statusCode);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      error.value = 'An error occurred while fetching data';
+    }
+  };
+
+  return { worker_data, error, load };
+};
+
+// For inserting form data
+const insertWorker = (data) => {
+  return new Promise((resolve, reject) => {
+    uni.request({
+      url: 'http://192.168.16.32:3000/api/leave', // Replace with actual POST endpoint
+      method: 'POST',
+      data,
       header: {
         'Content-Type': 'application/json',
-        'x-auth-token': token,
-        ...options.headers
+        'Authorization': `Bearer your_token_here`  // Add Bearer token if required
+      },
+      success(res) {
+        if (res.statusCode === 200 || res.statusCode === 201) {
+          resolve(res);
+        } else {
+          reject(res);
+        }
+      },
+      fail(err) {
+        reject(err);
       }
-    })
-    
-    if (err) throw err
-    return res.data
-  },
-  
-  async getPosts() {
-    return this.request({ url: '/posts' })
-  },
-  
-  async createPost(content) {
-    return this.request({
-      url: '/posts',
-      method: 'POST',
-      data: { content }
-    })
-  }
-}
+    });
+  });
+};
+
+// Export as default
+export default {
+  insertWorker,
+  worker_leave
+};

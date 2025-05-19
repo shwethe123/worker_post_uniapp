@@ -61,7 +61,7 @@ export default {
       try {
         console.log('Sending login request...')
         const response = await uni.request({
-          url: 'https://worker-post-backend.onrender.com/api/users/login',
+          url: 'http://192.168.16.32:3000/api/users/login',
           method: 'POST',
           data: {
             email: this.email,

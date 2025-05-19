@@ -8,63 +8,68 @@
           :src="post.avatar"
           class="post-avatar"
         />
-        <view v-else class="user-avatar-text">
+        <view
+          v-else
+          class="user-avatar-text"
+          :style="{ backgroundColor: getAvatarColor(post.userId === currentUser.userId 
+            ? currentUser.username 
+            : post.user.username) }"
+        >
           {{
             getInitials(post.userId === currentUser.userId 
               ? currentUser.username 
               : post.user.username)
           }}
-        </view>	
+        </view>
       </view>
 
       <view class="user-info">
         <text class="username">{{ post.user.username }}</text>
         <text class="timestamp">{{ formatRelativeTime(post.createdAt) }}</text>
       </view>
-      <!-- <view v-if="post.userId === currentUser.userId" class="post-actions"> -->
+
       <view v-if="post.userId === currentUser.userId" class="post-actions">
         <text @click="deletePost" class="delete-btn">X</text>
       </view>
-	  <view class="post-actions">
-	    <text @click="todoPost" class="todo-btn">Todo</text>
-	  </view>
+      <view class="post-actions">
+        <text @click="todoPost" class="todo-btn">Todo</text>
+      </view>
     </view>
 
     <!-- Content -->
-	<view class="card-body">
-	  <text class="content">{{ post.content }}</text>
+    <view class="card-body">
+      <text class="content">{{ post.content }}</text>
+      <image
+        v-if="post.image"
+        :src="post.image"
+        class="post-image"
+        mode="widthFix"
+        @tap="previewImage"
+      />
+    </view>
 
-		<image
-		  v-if="post.image"
-		  :src="post.image"
-		  class="post-image"
-		  mode="widthFix"
-		  @tap="previewImage"
-		/>
-
-	</view>
     <!-- Stats -->
     <view class="card-stats">
-       <text class="likes-count">{{ post.likes.length }} likes</text>
+      <text class="likes-count">{{ post.likes.length }} likes</text>
       <text @click="toggleComments" class="comments-count">{{ post.comments.length }} comments</text>
     </view>
 
     <!-- Actions -->
-  <view class="card-actions">
-    <text @click="toggleLike" class="action-btn" :class="{ liked: isLiked }">
-      <text :style="{ color: isLiked ? '#e0245e' : '#65676b' }">
-        {{ isLiked ? '❤️' : '♡' }}
-      </text> {{ isLiked ? 'Liked' : 'Like' }}
-    </text>
-    <text @click="toggleComments" class="action-btn">
-      <text>💬</text> Comment
-    </text>
-  </view>
+    <view class="card-actions">
+      <text @click="toggleLike" class="action-btn" :class="{ liked: isLiked }">
+        <text :style="{ color: isLiked ? '#e0245e' : '#65676b' }">
+          {{ isLiked ? '❤️' : '♡' }}
+        </text> {{ isLiked ? 'Liked' : 'Like' }}
+      </text>
+      <text @click="toggleComments" class="action-btn">
+        <text>💬</text> Comment
+      </text>
+    </view>
 
     <!-- Comments -->
     <view v-if="commentsVisible" class="comment-section">
       <view v-for="comment in post.comments" :key="comment._id" class="comment-item">
-        <view class="comment-avatar-text">
+        <view class="comment-avatar-text" :style="{ backgroundColor: getAvatarColor(comment.user.username) }">
           {{ getInitials(comment.user.username) }}
         </view>
 
@@ -79,7 +84,7 @@
 
           <view v-if="comment.replies.length" class="replies-container">
             <view v-for="reply in comment.replies" :key="reply._id" class="reply-item">
-              <view class="reply-avatar-text">
+              <view class="reply-avatar-text" :style="{ backgroundColor: getAvatarColor(reply.user.username) }">
                 {{ getInitials(reply.user.username) }}
               </view>
 
@@ -94,13 +99,11 @@
           </view>
 
           <view class="reply_con">
-            <text @click="showReplyInput(comment._id)" class="reply-btn">
-              Reply
-            </text>
+            <text @click="showReplyInput(comment._id)" class="reply-btn">Reply</text>
           </view>
 
           <view v-if="activeReplyInput === comment._id" class="reply-input">
-            <view class="comment-avatar-text">
+            <view class="comment-avatar-text" :style="{ backgroundColor: getAvatarColor(currentUser.username) }">
               {{ getInitials(currentUser.username) }}
             </view>
             <input 
@@ -114,7 +117,7 @@
       </view>
 
       <view class="new-comment">
-        <view class="comment-avatar-text">
+        <view class="comment-avatar-text" :style="{ backgroundColor: getAvatarColor(currentUser.username) }">
           {{ getInitials(currentUser.username) }}
         </view>
         <input 
@@ -140,7 +143,7 @@ export default {
       newComment: '',
       activeReplyInput: null,
       replyTexts: {},
-      isLiked: false // manually tracked
+      isLiked: false
     }
   },
   mounted() {
@@ -157,24 +160,23 @@ export default {
     }
   },
   methods: {
-	toggleLike() {
-	  this.isLiked = !this.isLiked;
-	  const likeKey = `like_${this.post._id}_${this.currentUser.userId}`;
-	  try {
-		uni.setStorageSync(likeKey, this.isLiked);
-	  } catch (e) {
-		console.error('Failed to save like state:', e);
-	  }
+    toggleLike() {
+      this.isLiked = !this.isLiked;
+      const likeKey = `like_${this.post._id}_${this.currentUser.userId}`;
+      try {
+        uni.setStorageSync(likeKey, this.isLiked);
+      } catch (e) {
+        console.error('Failed to save like state:', e);
+      }
 
-	  // Update likes array
-	  if (this.isLiked) {
-		this.post.likes.push({ _id: this.currentUser.userId });
-	  } else {
-		this.post.likes = this.post.likes.filter(u => u._id !== this.currentUser.userId);
-	  }
+      if (this.isLiked) {
+        this.post.likes.push({ _id: this.currentUser.userId });
+      } else {
+        this.post.likes = this.post.likes.filter(u => u._id !== this.currentUser.userId);
+      }
 
-	  this.$emit('like-post', this.post._id, this.isLiked);
-	},
+      this.$emit('like-post', this.post._id, this.isLiked);
+    },
     toggleComments() {
       this.commentsVisible = !this.commentsVisible;
     },
@@ -227,11 +229,20 @@ export default {
       }
       return initials;
     },
-	todoPost() {
-		uni.navigateTo({
-			url: `/pages/components/worker_todo?postId=${this.post._id}&content=${encodeURIComponent(this.post.content)}`
-		})
-	},
+    getAvatarColor(username) {
+      const colors = ['#1877f2', '#0d1b2a', '#70d6ff', '#fd7e14', '#6610f2', '#c2bbf0', '#e63946', '#43aa8b'];
+      let hash = 0;
+      for (let i = 0; i < username.length; i++) {
+        hash = username.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const index = Math.abs(hash % colors.length);
+      return colors[index];
+    },
+    todoPost() {
+      uni.navigateTo({
+        url: `/pages/components/worker_todo?postId=${this.post._id}&content=${encodeURIComponent(this.post.content)}`
+      });
+    },
     formatRelativeTime(dateString) {
       const now = new Date();
       const targetDate = new Date(dateString);
@@ -249,14 +260,13 @@ export default {
       if (days < 7) return `${days} days ago`;
       return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
     },
-	
-	  previewImage() {
-	    if (!this.post.image) return;
-	    uni.previewImage({
-	      current: this.post.image, // current image URL
-	      urls: [this.post.image]   // array of images to preview
-	    });
-	  },
+    previewImage() {
+      if (!this.post.image) return;
+      uni.previewImage({
+        current: this.post.image,
+        urls: [this.post.image]
+      });
+    }
   }
 }
 </script>

@@ -77,7 +77,7 @@ export default {
   methods: {
     fetchTasks() {
       uni.request({
-        url: 'https://worker-post-backend.onrender.com/api/tasks',
+        url: 'http://192.168.16.32:3000/api/tasks',
         method: 'GET',
         success: (res) => {
           if (Array.isArray(res.data)) {
@@ -104,7 +104,7 @@ export default {
       if (!this.newTask.trim()) return;
 
       uni.request({
-        url: 'https://worker-post-backend.onrender.com/api/tasks',
+        url: 'http://192.168.16.32:3000/api/tasks',
         method: 'POST',
         data: {
           userID: this.userID,
@@ -151,7 +151,7 @@ export default {
     updateTaskStatus(index, newState) {
       const task = this.tasks[index];
       uni.request({
-        url: `https://worker-post-backend.onrender.com/api/tasks/${task.id}`,
+        url: `http://192.168.16.32:3000/api/tasks/${task.id}`,
         method: 'PATCH',
         data: {
           task: task.text,
@@ -187,7 +187,7 @@ export default {
     deleteTask(index) {
       const task = this.tasks[index];
       uni.request({
-        url: `https://worker-post-backend.onrender.com/api/tasks/${task.id}`,
+        url: `http://192.168.16.32:3000/api/tasks/${task.id}`,
         method: 'DELETE',
         success: () => {
           this.fetchTasks();
@@ -212,7 +212,7 @@ export default {
       if (!this.editText.trim()) return;
       const task = this.tasks[index];
       uni.request({
-        url: `https://worker-post-backend.onrender.com/api/tasks/${task.id}`,
+        url: `http://192.168.16.32:3000/api/tasks/${task.id}`,
         method: 'PATCH',
         data: {
           task: this.editText,
@@ -246,7 +246,7 @@ export default {
 
     getStatusLabel(status) {
       if (status === 'done') return '✔ ပြီးသွားပါပြီ';
-      if (status === 'working') return '🔄 လုပ်နေပါသည်';
+      if (status === 'working') return '🔄 လုပ်နေသည်';
       return '⏸ မလုပ်သေးပါ';
     }
   }
@@ -281,7 +281,7 @@ input {
   border-radius: 16rpx;
   background: rgba(255, 255, 255, 0.8);
   font-size: 28rpx;
-  box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.05);
+  /* box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.05); */
 }
 
 .edit-input {

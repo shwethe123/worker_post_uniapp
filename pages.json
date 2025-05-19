@@ -40,9 +40,21 @@
 	  }
 	},
 	{
-	  "path": "pages/components/workSpaces",
+	  "path": "pages/components/worker_request/worker_index",
 	  "style": {
 	    "navigationBarTitleText": "Workspaces"
+	  }
+	},
+	{
+	  "path": "pages/components/worker_request/work_leave",
+	  "style": {
+	    "navigationBarTitleText": "Workleave"
+	  }
+	},
+	{
+	  "path": "pages/components/worker_request/worker_leave_card",
+	  "style": {
+	    "navigationBarTitleText": "Workleave"
 	  }
 	}
   ],
@@ -51,20 +63,20 @@
       {
         "pagePath": "pages/index/index",
         "text": "Feed",
-        "iconPath": "static/home-active.png",
-        "selectedIconPath": "static/home-active.png"
+        "iconPath": "static/new-active.png",
+        "selectedIconPath": "static/new-active.png"
       },
 	  {
-	    "pagePath": "pages/components/workSpaces",
+	    "pagePath": "pages/components/worker_request/worker_index",
 	    "text": "Workspaces",
-	    "iconPath": "static/home-active.png",
-	    "selectedIconPath": "static/home-active.png"
+	    "iconPath": "/static/checklist_17935819.png",
+	    "selectedIconPath": "static/checklist_17935819.png"
 	  },
 	  {
         "pagePath": "pages/profile/profile",
         "text": "Profile",
-        "iconPath": "static/kindpng_4952535.png",
-        "selectedIconPath": "static/kindpng_4952535.png"
+        "iconPath": "static/settings_6543081.png",
+        "selectedIconPath": "static/settings_6543081.png"
       }
     ]
   },

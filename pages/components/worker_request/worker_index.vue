@@ -1,7 +1,7 @@
 <template>
   <view :class="['workspace', isDark ? 'dark' : '']">
     <!-- User Info -->
-    <view class="user-info">
+    <view class="user-info" v-if="user.name && user.avatar">
       <image class="avatar" :src="user.avatar" />
       <text class="greeting">{{ t('welcome') }}, {{ user.name }}</text>
     </view>
@@ -13,7 +13,9 @@
 
     <!-- Language & Theme Toggles -->
     <view class="toggles">
-      <button size="mini" @click="toggleLang">{{ lang === 'en' ? 'မြန်မာ' : 'English' }}</button>
+      <button size="mini" @click="toggleLang">
+        {{ lang === 'en' ? 'မြန်မာ' : 'English' }}
+      </button>
       <switch @change="toggleDark" :checked="isDark" />
     </view>
 
@@ -32,8 +34,8 @@
         :key="item.title"
         @click="goTo(item.path)"
       >
-        <view class="card-icon-wrap">
-          <image class="card-icon" :src="item.icon" />
+        <view @click="work_leave" class="card-icon-wrap">
+          <uni-icons :type="item.icon" size="40" color="#4CAF50" />
           <view class="badge" v-if="item.unreadCount > 0">
             {{ item.unreadCount }}
           </view>
@@ -45,39 +47,42 @@
 </template>
 
 <script>
+import uniIcons from '@dcloudio/uni-ui/lib/uni-icons/uni-icons.vue'
+
 export default {
+  components: { uniIcons },
   data() {
     return {
       lang: 'en',
       isDark: false,
       searchQuery: '',
       user: {
-        name: 'John Doe',
-        avatar: '/static/avatar.png',
+        name: '',
+        avatar: '',
       },
       tools: [
         {
           title: 'Projects',
           path: '/pages/projects/index',
-          icon: '/static/projects.png',
+          icon: 'folder',
           unreadCount: 0,
         },
         {
           title: 'Tasks',
           path: '/pages/tasks/index',
-          icon: '/static/tasks.png',
+          icon: 'list',
           unreadCount: 3,
         },
         {
           title: 'Team',
           path: '/pages/team/index',
-          icon: '/static/team.png',
+          icon: 'person',
           unreadCount: 0,
         },
         {
           title: 'Calendar',
           path: '/pages/calendar/index',
-          icon: '/static/calendar.png',
+          icon: 'calendar',
           unreadCount: 2,
         },
       ],
@@ -93,32 +98,60 @@ export default {
           search: 'ကိရိယာများကိုရှာဖွေပါ...',
         },
       },
-    };
+    }
   },
   computed: {
     filteredTools() {
       return this.tools.filter((tool) =>
         tool.title.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+      )
     },
+  },
+  onLoad() {
+    this.fetchUserData()
   },
   methods: {
     t(key) {
-      return this.translations[this.lang][key] || key;
+      return this.translations[this.lang][key] || key
     },
     toggleLang() {
-      this.lang = this.lang === 'en' ? 'mm' : 'en';
+      this.lang = this.lang === 'en' ? 'mm' : 'en'
     },
     toggleDark(e) {
-      this.isDark = e.detail.value;
+      this.isDark = e.detail.value
     },
     goTo(path) {
-      uni.navigateTo({ url: path });
+      uni.navigateTo({ url: '/pages/components/worker_request/work_leave' })
+    },
+    async fetchUserData() {
+      try {
+        const token = uni.getStorageSync('token')
+        if (!token) {
+          uni.showToast({ title: 'Please login', icon: 'none' })
+          return
+        }
+
+        const res = await uni.request({
+          url: 'http://192.168.16.32:3000/api/posts',
+          method: 'GET',
+          header: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (res.statusCode === 200 && res.data.length > 0) {
+          this.user.name = res.data[0].name
+          this.user.avatar = res.data[0].avatar
+        } else {
+          console.error('User data not found or unauthorized')
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error)
+      }
     },
   },
-};
+}
 </script>
-
 <style scoped>
 .workspace {
   padding: 20rpx;
@@ -212,9 +245,8 @@ export default {
 }
 
 .card-icon {
-  width: 80rpx;
-  height: 80rpx;
-  margin-bottom: 10rpx;
+  font-size: 80rpx;  /* Set size of the icon */
+  color: #4CAF50; /* Set the icon color */
 }
 
 .badge {
